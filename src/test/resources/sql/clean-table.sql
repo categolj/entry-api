@@ -1,0 +1,1 @@
+TRUNCATE TABLE entry_tokens, entry_tags, entry_categories, entry;
