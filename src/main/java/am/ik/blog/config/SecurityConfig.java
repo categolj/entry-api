@@ -21,9 +21,7 @@ import org.springframework.boot.security.autoconfigure.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Role;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -46,6 +44,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.ReflectionUtils;
 
 @Configuration(proxyBeanMethods = false)
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @EnableMethodSecurity(prePostEnabled = false)
 @ImportRuntimeHints(SecurityConfig.RuntimeHints.class)
 public class SecurityConfig {
@@ -109,13 +108,13 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	@Primary
-	CompositeUserDetailsService compositeUserDetailsService(List<UserDetailsService> userDetailsServices) {
-		return new CompositeUserDetailsService(userDetailsServices);
+	CompositeUserDetailsService compositeUserDetailsService(SecurityProperties properties,
+			PasswordEncoder passwordEncoder, TenantUserProps props) {
+		InMemoryUserDetailsManager inMemoryUserDetailsManager = inMemoryUserDetailsManager(properties, passwordEncoder);
+		TenantUserDetailsService tenantUserDetailsService = tenantUserDetailsService(props);
+		return new CompositeUserDetailsService(List.of(inMemoryUserDetailsManager, tenantUserDetailsService));
 	}
 
-	@Bean
-	@Order(1)
 	InMemoryUserDetailsManager inMemoryUserDetailsManager(SecurityProperties properties,
 			PasswordEncoder passwordEncoder) {
 		SecurityProperties.User user = properties.getUser();
@@ -132,8 +131,6 @@ public class SecurityConfig {
 			.build());
 	}
 
-	@Bean
-	@Order(2)
 	TenantUserDetailsService tenantUserDetailsService(TenantUserProps props) {
 		return new TenantUserDetailsService(props);
 	}
