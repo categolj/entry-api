@@ -75,4 +75,9 @@ public class EntryService {
 		entryRepository.deleteById(entryKey);
 	}
 
+	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
+	public void updateSummary(@Nullable @P("tenantId") String tenantId, EntryKey entryKey, String summary) {
+		entryRepository.updateSummary(entryKey, summary);
+	}
+
 }

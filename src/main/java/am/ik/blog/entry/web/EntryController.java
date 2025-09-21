@@ -132,15 +132,12 @@ public class EntryController {
 			@PathVariable(required = false) String tenantId, @RequestBody EntrySummaryPatchRequest request,
 			@AuthenticationPrincipal UserDetails userDetails) {
 		EntryKey entryKey = new EntryKey(entryId, tenantId);
-		Optional<Entry> entryOptional = this.entryService.findById(tenantId, entryKey);
-		if (entryOptional.isPresent()) {
-			Entry entry = entryOptional.get();
-			FrontMatter frontMatter = entry.frontMatter().toBuilder().summary(request.summary).build();
-			Instant now = this.instantSource.instant();
-			Author updated = Author.builder().name(userDetails.getUsername()).date(now).build();
-			Entry updatedEntry = entry.toBuilder().frontMatter(frontMatter).updated(updated).build();
-			Entry saved = this.entryService.save(tenantId, updatedEntry);
-			return ResponseEntity.ok(saved);
+		Optional<Entry> entry = this.entryService.findById(tenantId, entryKey);
+		if (entry.isPresent()) {
+			this.entryService.updateSummary(tenantId, entryKey, request.summary());
+			return ResponseEntity.ok(entry.map(e -> e.toBuilder()
+				.frontMatter(e.frontMatter().toBuilder().summary(request.summary()).build())
+				.build()));
 		}
 		else {
 			return entryNotFound(entryKey);

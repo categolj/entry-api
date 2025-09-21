@@ -30,4 +30,6 @@ public interface EntryRepository {
 
 	void deleteById(EntryKey entryKey);
 
+	void updateSummary(EntryKey entryKey, String summary);
+
 }

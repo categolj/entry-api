@@ -450,6 +450,16 @@ public class DsqlEntryRepository implements EntryRepository {
 		this.jdbcClient.sql("DELETE FROM entry WHERE id = :entryId").param("entryId", entryId).update();
 	}
 
+	@Override
+	public void updateSummary(EntryKey entryKey, String summary) {
+		this.jdbcClient
+			.sql("UPDATE entry SET summary = :summary WHERE public_entry_id = :publicEntryId AND tenant_id = :tenantId")
+			.param("summary", summary)
+			.param("publicEntryId", entryKey.entryId())
+			.param("tenantId", entryKey.tenantId())
+			.update();
+	}
+
 	public void deleteTokens(UUID entryId) {
 		Integer numOfTokens = this.jdbcClient.sql("SELECT COUNT(*) FROM entry_tokens WHERE entry_id = :entryId")
 			.param("entryId", entryId)

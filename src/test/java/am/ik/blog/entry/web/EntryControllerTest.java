@@ -643,7 +643,7 @@ class EntryControllerTest {
 		assertThat(frontMatter.summary())
 			.isEqualTo("This article provides an overview of Spring Boot and its features.");
 		assertThat(entry.created().name()).isEqualTo(entry1.created().name());
-		assertThat(entry.updated().name()).isEqualTo(username);
+		assertThat(entry.updated().name()).isEqualTo(entry1.updated().name());
 		assertThat(this.entryRepository.findById(entry1.entryKey()))
 			.hasValueSatisfying(e -> assertThat(e.frontMatter().summary()).isEqualTo(frontMatter.summary()));
 	}
