@@ -6,14 +6,14 @@ on:
     paths:
     - src/**
     - pom.xml
-    - .github/workflows/*
+    - .github/workflows/ci.yaml
   pull_request:
     branches:
     - main
     paths:
     - src/**
     - pom.xml
-    - .github/workflows/*
+    - .github/workflows/ci.yaml
 jobs:
   unit-test:
     uses: categolj/workflows/.github/workflows/unit-test.yaml@main
