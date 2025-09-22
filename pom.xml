@@ -164,6 +164,12 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>am.ik.spring.opentelemetry</groupId>
+      <artifactId>otel-logs-autoconfigure</artifactId>
+      <version>0.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
