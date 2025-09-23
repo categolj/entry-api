@@ -29,7 +29,7 @@ export function EntryList() {
     }
   }, [loading, isInitialLoad]);
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const newCriteria = { query: searchQuery.trim() || undefined };
     console.log('Search submitted with criteria:', newCriteria);
@@ -118,7 +118,7 @@ export function EntryList() {
       {/* Error Display */}
       {error && (
         <div className="mt-4">
-          <ErrorAlert message={error} onDismiss={() => execute()} />
+          <ErrorAlert message={error} onDismiss={() => void execute()} />
         </div>
       )}
 

@@ -24,7 +24,7 @@ export function DiffViewer({
   const calculateLCS = (arr1: string[], arr2: string[]) => {
     const m = arr1.length;
     const n = arr2.length;
-    const dp: number[][] = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+    const dp: number[][] = Array(m + 1).fill(0).map(() => Array(n + 1).fill(0) as number[]);
     
     for (let i = 1; i <= m; i++) {
       for (let j = 1; j <= n; j++) {

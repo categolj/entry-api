@@ -43,7 +43,7 @@ export function useApi<T>(
 
   useEffect(() => {
     if (options.immediate !== false) {
-      execute();
+      void execute();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/layout';
 import { useAuth } from '../../hooks';
+import { LocationState } from '../../types';
 
 const DEFAULT_TENANT = '_';
 
@@ -22,10 +23,20 @@ export function TenantSelector() {
 
   // If already authenticated and coming from a protected route, redirect back
   useEffect(() => {
-    if (auth.isAuthenticated && location.state?.from) {
-      navigate(location.state.from.pathname, { replace: true });
+    const state = location.state as LocationState | undefined;
+    if (auth.isAuthenticated && state?.from) {
+      navigate(state.from.pathname, { replace: true });
     }
   }, [auth.isAuthenticated, location.state, navigate]);
+
+  // Check for authentication errors from API
+  useEffect(() => {
+    const storedError = sessionStorage.getItem('authError');
+    if (storedError) {
+      setAuthError(storedError);
+      sessionStorage.removeItem('authError');
+    }
+  }, []);
 
   const handleTenantAccess = (tenantId: string) => {
     if (!username.trim() || !password.trim()) {

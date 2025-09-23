@@ -23,10 +23,19 @@ class ApiError extends Error {
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
+    // Handle authentication errors
+    if (response.status === 401 || response.status === 403) {
+      // Store the error message for the login page
+      sessionStorage.setItem('authError', response.status === 401 ? 'Authentication failed. Please check your credentials.' : 'Access denied.');
+      // Redirect to login page
+      window.location.href = '/';
+      throw new ApiError('Authentication required', response.status);
+    }
+    
     const contentType = response.headers.get('content-type');
     if (contentType?.includes('application/json')) {
       try {
-        const problemDetail: ProblemDetail = await response.json();
+        const problemDetail = await response.json() as ProblemDetail;
         throw new ApiError(problemDetail.detail || 'API request failed', response.status, problemDetail);
       } catch (e) {
         if (e instanceof ApiError) throw e;
@@ -39,9 +48,10 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
   const contentType = response.headers.get('content-type');
   if (contentType?.includes('application/json')) {
-    return response.json();
+    return response.json() as Promise<T>;
   } else {
-    return response.text() as unknown as T;
+    const text = await response.text();
+    return text as T;
   }
 }
 
@@ -74,7 +84,7 @@ export const api = {
     if (criteria.size) params.append('size', criteria.size.toString());
     if (criteria.cursor) params.append('cursor', criteria.cursor);
 
-    const url = buildUrl(tenantId, '/entries') + (params.toString() ? `?${params}` : '');
+    const url = buildUrl(tenantId, '/entries') + (params.toString() ? `?${params.toString()}` : '');
     console.log('API getEntries - URL:', url, 'Criteria:', criteria);
     const response = await fetch(url, {
       headers: buildHeaders(),

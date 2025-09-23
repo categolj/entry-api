@@ -5,7 +5,7 @@ import { useTenant, useApi } from '../../hooks';
 import { api } from '../../services';
 import { LoadingSpinner, ErrorAlert, Button } from '../../components/common';
 import { Input, Textarea, TagInput, CategoryInput } from '../../components/forms';
-import { FrontMatter, CreateEntryRequest, UpdateEntryRequest } from '../../types';
+import { FrontMatter, PreviewState } from '../../types';
 import { parseMarkdownWithFrontMatter, createMarkdownWithFrontMatter } from '../../utils';
 
 interface EntryFormProps {
@@ -31,7 +31,7 @@ export function EntryForm({ mode }: EntryFormProps) {
   
   const [markdownMode, setMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [updateTimestamp, setUpdateTimestamp] = useState(true);
   const [originalMarkdown, setOriginalMarkdown] = useState('');
@@ -50,7 +50,7 @@ export function EntryForm({ mode }: EntryFormProps) {
 
   // Check if we're returning from preview with state
   useEffect(() => {
-    const state = location.state as any;
+    const state = location.state as PreviewState | undefined;
     if (state?.formData) {
       // Restore form data from navigation state
       setFormData(state.formData);
@@ -105,15 +105,15 @@ export function EntryForm({ mode }: EntryFormProps) {
       };
       setMarkdownContent(createMarkdownWithFrontMatter(frontMatter, formData.content));
     }
-  }, [updateTimestamp]);
+  }, [updateTimestamp, markdownMode, existingEntry, formData, mode]);
 
-  const handleFieldChange = (field: keyof typeof formData, value: any) => {
+  const handleFieldChange = (field: keyof typeof formData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setSubmitError(null);
     
     // Update markdown content when form fields change
     if (!markdownMode) {
-      const updatedFormData = { ...formData, [field]: value };
+      const updatedFormData = { ...formData, [field]: value } as typeof formData;
       const frontMatter: FrontMatter = {
         title: updatedFormData.title,
         summary: updatedFormData.summary || undefined,
@@ -145,7 +145,7 @@ export function EntryForm({ mode }: EntryFormProps) {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
 
@@ -166,70 +166,6 @@ export function EntryForm({ mode }: EntryFormProps) {
     navigate(previewPath, { state: previewState });
   };
 
-  const handleConfirmSubmit = async () => {
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const frontMatter: FrontMatter = {
-        title: formData.title,
-        summary: formData.summary || undefined,
-        categories: formData.categories.map(name => ({ name })),
-        tags: formData.tags.map(name => ({ name })),
-        // Only include date if it was explicitly set in the original
-        ...(existingEntry?.frontMatter.date && { date: existingEntry.frontMatter.date }),
-        // Only include updated when explicitly keeping the old timestamp (checkbox unchecked)
-        ...(mode === 'edit' && !updateTimestamp && (existingEntry?.frontMatter.updated || existingEntry?.updated.date) && { 
-          updated: existingEntry?.frontMatter.updated || existingEntry?.updated.date 
-        }),
-      };
-
-      if (mode === 'create') {
-        const request: CreateEntryRequest = {
-          frontMatter,
-          content: formData.content,
-        };
-        
-        let newEntry;
-        if (entryIdInput.trim()) {
-          // Use PUT method when entry ID is specified
-          const entryId = parseInt(entryIdInput.trim(), 10);
-          newEntry = await api.createEntryWithId(tenant, entryId, request);
-        } else {
-          // Use POST method when no entry ID is specified
-          newEntry = await api.createEntry(tenant, request);
-        }
-        navigate(`/console/${tenant}/entries/${newEntry.entryId}`);
-      } else {
-        const request: UpdateEntryRequest = {
-          frontMatter,
-          content: formData.content,
-        };
-        const updatedEntry = await api.updateEntry(tenant, entryId, request);
-        navigate(`/console/${tenant}/entries/${updatedEntry.entryId}`);
-      }
-    } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : 'Failed to save entry');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const getCurrentMarkdown = () => {
-    const frontMatter: FrontMatter = {
-      title: formData.title,
-      summary: formData.summary || undefined,
-      categories: formData.categories.map(name => ({ name })),
-      tags: formData.tags.map(name => ({ name })),
-      // Only include date if it was explicitly set in the original
-      ...(existingEntry?.frontMatter.date && { date: existingEntry.frontMatter.date }),
-      // Only include updated when explicitly keeping the old timestamp (checkbox unchecked)
-      ...(mode === 'edit' && !updateTimestamp && (existingEntry?.frontMatter.updated || existingEntry?.updated.date) && { 
-        updated: existingEntry?.frontMatter.updated || existingEntry?.updated.date 
-      }),
-    };
-    return createMarkdownWithFrontMatter(frontMatter, formData.content);
-  };
 
   if (mode === 'edit' && loadingEntry) {
     return (
@@ -460,7 +396,6 @@ export function EntryForm({ mode }: EntryFormProps) {
           <div className="flex space-x-3">
             <Button
               type="submit"
-              loading={isSubmitting}
               disabled={!formData.title.trim() || !formData.content.trim()}
             >
               {mode === 'create' ? 'Preview & Create' : 'Preview & Update'}

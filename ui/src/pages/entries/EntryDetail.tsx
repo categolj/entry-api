@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTenant, useApi } from '../../hooks';
 import { api } from '../../services';
 import { LoadingSpinner, ErrorAlert, Button } from '../../components/common';
-import { Entry } from '../../types';
 
 export function EntryDetail() {
   const { tenant } = useTenant();
@@ -24,20 +23,24 @@ export function EntryDetail() {
     [tenant, entryId]
   );
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!entry) return;
 
-    setDeleteLoading(true);
-    try {
-      await api.deleteEntry(tenant, entry.entryId);
-      navigate(`/console/${tenant}`);
-    } catch (error) {
-      console.error('Failed to delete entry:', error);
-      // Error will be handled by the API layer
-    } finally {
-      setDeleteLoading(false);
-      setShowDeleteConfirm(false);
-    }
+    const deleteEntry = async () => {
+      setDeleteLoading(true);
+      try {
+        await api.deleteEntry(tenant, entry.entryId);
+        navigate(`/console/${tenant}`);
+      } catch (error) {
+        console.error('Failed to delete entry:', error);
+        // Error will be handled by the API layer
+      } finally {
+        setDeleteLoading(false);
+        setShowDeleteConfirm(false);
+      }
+    };
+
+    void deleteEntry();
   };
 
   const formatDate = (dateString: string) => {
@@ -69,7 +72,7 @@ export function EntryDetail() {
   if (error) {
     return (
       <div className="px-4 py-3 sm:px-0">
-        <ErrorAlert message={error} onDismiss={() => refetch()} />
+        <ErrorAlert message={error} onDismiss={() => void refetch()} />
         <div className="mt-3">
           <Link to={`/console/${tenant}`}>
             <Button variant="secondary">Back to Entries</Button>
@@ -219,7 +222,7 @@ export function EntryDetail() {
                 </Button>
                 <Button
                   variant="danger"
-                  onClick={handleDelete}
+                  onClick={() => handleDelete()}
                   loading={deleteLoading}
                 >
                   Delete

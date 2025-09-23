@@ -1,25 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useTenant, useApi } from '../../hooks';
+import { useTenant } from '../../hooks';
 import { api } from '../../services';
-import { LoadingSpinner, ErrorAlert, Button, DiffViewer } from '../../components/common';
-import { FrontMatter, CreateEntryRequest, UpdateEntryRequest } from '../../types';
+import { ErrorAlert, DiffViewer } from '../../components/common';
+import { Entry, FrontMatter, CreateEntryRequest, UpdateEntryRequest, PreviewState } from '../../types';
 import { createMarkdownWithFrontMatter } from '../../utils';
 
-interface PreviewState {
-  mode: 'create' | 'edit';
-  formData: {
-    title: string;
-    summary: string;
-    categories: string[];
-    tags: string[];
-    content: string;
-  };
-  entryIdInput?: string;
-  updateTimestamp?: boolean;
-  existingEntry?: any;
-  originalMarkdown?: string;
-}
 
 export function EntryPreview() {
   const { tenant } = useTenant();
@@ -29,7 +15,7 @@ export function EntryPreview() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [existingEntryForId, setExistingEntryForId] = useState<any>(null);
+  const [existingEntryForId, setExistingEntryForId] = useState<Entry | null>(null);
   const [originalMarkdown, setOriginalMarkdown] = useState('');
 
   // Redirect back if no state
@@ -56,7 +42,7 @@ export function EntryPreview() {
         }
       };
       
-      checkExistingEntry();
+      void checkExistingEntry();
     } else if (state.mode === 'edit') {
       setOriginalMarkdown(state.originalMarkdown || '');
     }
@@ -198,7 +184,7 @@ export function EntryPreview() {
         <DiffViewer
           originalContent={originalMarkdown}
           newContent={getCurrentMarkdown()}
-          onConfirm={handleConfirmSubmit}
+          onConfirm={() => void handleConfirmSubmit()}
           onCancel={handleBack}
           isLoading={isSubmitting}
         />
