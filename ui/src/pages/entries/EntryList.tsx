@@ -1,51 +1,75 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useTenant, useApi } from '../../hooks';
+import useSWRInfinite from 'swr/infinite';
+import { useTenant } from '../../hooks';
 import { api } from '../../services';
 import { LoadingSpinner, ErrorAlert, Button } from '../../components/common';
 import { Input } from '../../components/forms';
-import { Entry, SearchCriteria } from '../../types';
+import { Entry, SearchCriteria, PaginationResult } from '../../types';
 
 export function EntryList() {
   const { tenant } = useTenant();
-  const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [isSearching, setIsSearching] = useState(false);
+  const [currentSearchCriteria, setCurrentSearchCriteria] = useState<SearchCriteria>({});
+
+  // SWR Infinite key generator
+  const getKey = (pageIndex: number, previousPageData: PaginationResult<Entry> | null) => {
+    // If there's no more data, return null
+    if (previousPageData && !previousPageData.hasNext) return null;
+    
+    // First page, no cursor
+    if (pageIndex === 0) {
+      return [`/entries/${tenant}`, currentSearchCriteria];
+    }
+    
+    // Next pages, use cursor from last item of previous page
+    if (previousPageData && previousPageData.content.length > 0) {
+      const lastEntry = previousPageData.content[previousPageData.content.length - 1];
+      const cursor = lastEntry.updated.date;
+      return [`/entries/${tenant}`, { ...currentSearchCriteria, cursor }];
+    }
+    
+    return null;
+  };
+
+  // SWR fetcher
+  const fetcher = async ([, criteria]: [string, SearchCriteria]) => {
+    return api.getEntries(tenant, criteria);
+  };
 
   const {
-    data: entriesResult,
-    loading,
+    data,
     error,
-    execute,
-  } = useApi(
-    () => api.getEntries(tenant, searchCriteria),
-    [tenant, searchCriteria]
-  );
+    isLoading,
+    isValidating,
+    size,
+    setSize,
+    mutate
+  } = useSWRInfinite<PaginationResult<Entry>, Error>(getKey, fetcher, {
+    revalidateOnFocus: false,
+    revalidateFirstPage: false
+  });
 
-  React.useEffect(() => {
-    if (loading && isInitialLoad) {
-      setIsInitialLoad(false);
-    }
-  }, [loading, isInitialLoad]);
+  // Flatten all entries from all pages
+  const allEntries = data ? data.flatMap(page => page.content) : [];
+  const hasMore = data ? data[data.length - 1]?.hasNext ?? true : true;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const newCriteria = { query: searchQuery.trim() || undefined };
     console.log('Search submitted with criteria:', newCriteria);
-    setIsSearching(true);
-    setSearchCriteria(newCriteria);
+    setCurrentSearchCriteria(newCriteria);
+    void mutate(); // Reset and refetch data
   };
-
-  React.useEffect(() => {
-    if (isSearching && !loading) {
-      setIsSearching(false);
-    }
-  }, [loading, isSearching]);
 
   const handleClearFilters = () => {
     setSearchQuery('');
-    setSearchCriteria({});
+    setCurrentSearchCriteria({});
+    void mutate(); // Reset and refetch data
+  };
+
+  const handleLoadMore = () => {
+    void setSize(size + 1);
   };
 
 
@@ -65,14 +89,6 @@ export function EntryList() {
     return tags.map(t => t.name).join(', ');
   };
 
-  // Only show full screen loading on initial load
-  if (loading && isInitialLoad) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="px-4 py-3 sm:px-0">
@@ -105,10 +121,10 @@ export function EntryList() {
             />
           </div>
           <div className="flex space-x-2">
-            <Button type="submit" disabled={loading && isSearching}>
-              {loading && isSearching ? 'Searching...' : 'Search'}
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Searching...' : 'Search'}
             </Button>
-            <Button type="button" variant="secondary" onClick={handleClearFilters} disabled={loading && isSearching}>
+            <Button type="button" variant="secondary" onClick={handleClearFilters} disabled={isLoading}>
               Clear
             </Button>
           </div>
@@ -118,7 +134,7 @@ export function EntryList() {
       {/* Error Display */}
       {error && (
         <div className="mt-4">
-          <ErrorAlert message={error} onDismiss={() => void execute()} />
+          <ErrorAlert message={error.message || 'An error occurred'} onDismiss={() => void mutate()} />
         </div>
       )}
 
@@ -127,36 +143,32 @@ export function EntryList() {
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <div className="px-4 py-3 border-b border-gray-200 sm:px-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900">
-              {loading && isSearching ? (
+              {isLoading && allEntries.length === 0 ? (
                 <span className="flex items-center">
                   <span className="mr-2"><LoadingSpinner size="sm" /></span>
-                  Searching...
+                  Loading...
                 </span>
               ) : (
-                entriesResult ? `${entriesResult.content.length} entries found` : 'Loading...'
+                allEntries.length > 0 ? `${allEntries.length} entries${hasMore ? '+' : ''} found` : 'No entries found'
               )}
             </h3>
           </div>
           
-          {loading && isSearching ? (
+          {isLoading && allEntries.length === 0 ? (
             <div className="px-4 py-8 text-center">
               <LoadingSpinner size="md" />
-              <p className="mt-2 text-gray-500">Searching entries...</p>
+              <p className="mt-2 text-gray-500">Loading entries...</p>
             </div>
-          ) : !entriesResult ? (
+          ) : allEntries.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <p className="text-gray-500">Loading entries...</p>
+              <p className="text-gray-500">No entries found.</p>
+              <Link to={`/console/${tenant}/entries/new`} className="mt-2 inline-block">
+                <Button>Create your first entry</Button>
+              </Link>
             </div>
-          ) : entriesResult.content.length === 0 ? (
-              <div className="px-4 py-8 text-center">
-                <p className="text-gray-500">No entries found.</p>
-                <Link to={`/console/${tenant}/entries/new`} className="mt-2 inline-block">
-                  <Button>Create your first entry</Button>
-                </Link>
-              </div>
-            ) : (
-              <ul className="divide-y divide-gray-200">
-                {entriesResult.content.map((entry: Entry) => (
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {allEntries.map((entry: Entry) => (
                   <li key={entry.entryId}>
                     <Link
                       to={`/console/${tenant}/entries/${entry.entryId}`}
@@ -205,35 +217,26 @@ export function EntryList() {
                     </Link>
                   </li>
                 ))}
-              </ul>
-            )}
+            </ul>
+          )}
 
-          {/* Pagination */}
-          {entriesResult && (entriesResult.hasNext || entriesResult.hasPrevious) && (
-            <div className="mt-6 flex justify-between">
-              <div>
-                {entriesResult.hasPrevious && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      // TODO: Implement pagination
-                    }}
-                  >
-                    Previous
-                  </Button>
+          {/* Load More */}
+          {hasMore && allEntries.length > 0 && (
+            <div className="px-6 py-6 border-t border-gray-200 text-center">
+              <button
+                onClick={handleLoadMore}
+                disabled={isValidating}
+                className="w-full max-w-xs mx-auto px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {isValidating ? (
+                  <span className="flex items-center justify-center">
+                    <LoadingSpinner size="sm" />
+                    <span className="ml-2">Loading More...</span>
+                  </span>
+                ) : (
+                  'Load More'
                 )}
-              </div>
-              <div>
-                {entriesResult.hasNext && (
-                  <Button
-                    onClick={() => {
-                      // TODO: Implement pagination
-                    }}
-                  >
-                    Next
-                  </Button>
-                )}
-              </div>
+              </button>
             </div>
           )}
         </div>
