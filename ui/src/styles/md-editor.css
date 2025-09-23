@@ -1,0 +1,15 @@
+/* Fix MDEditor click area issue */
+.w-md-editor .w-md-editor-text-pre,
+.w-md-editor .w-md-editor-text-input,
+.w-md-editor .w-md-editor-text {
+  min-height: 100% !important;
+}
+
+.w-md-editor .w-md-editor-text-pre .token.title {
+  margin: 0 !important;
+}
+
+/* Ensure the textarea fills the entire editor area */
+.w-md-editor .w-md-editor-text-input {
+  padding-top: 10px !important;
+}
