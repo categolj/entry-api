@@ -5,9 +5,14 @@ const DEFAULT_TENANT = '_';
 
 // Auth context for getting auth header
 let getAuthHeader: (() => string | null) | null = null;
+let skipAuthRedirect = false;
 
 export function setAuthHeaderProvider(provider: () => string | null) {
   getAuthHeader = provider;
+}
+
+export function setSkipAuthRedirect(skip: boolean) {
+  skipAuthRedirect = skip;
 }
 
 class ApiError extends Error {
@@ -25,10 +30,12 @@ async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     // Handle authentication errors
     if (response.status === 401 || response.status === 403) {
-      // Store the error message for the login page
-      sessionStorage.setItem('authError', response.status === 401 ? 'Authentication failed. Please check your credentials.' : 'Access denied.');
-      // Redirect to login page
-      window.location.href = '/';
+      if (!skipAuthRedirect) {
+        // Store the error message for the login page
+        sessionStorage.setItem('authError', response.status === 401 ? 'Authentication failed. Please check your credentials.' : 'Access denied.');
+        // Redirect to login page
+        window.location.href = '/';
+      }
       throw new ApiError('Authentication required', response.status);
     }
     
@@ -85,7 +92,6 @@ export const api = {
     if (criteria.cursor) params.append('cursor', criteria.cursor);
 
     const url = buildUrl(tenantId, '/entries') + (params.toString() ? `?${params.toString()}` : '');
-    console.log('API getEntries - URL:', url, 'Criteria:', criteria);
     const response = await fetch(url, {
       headers: buildHeaders(),
     });

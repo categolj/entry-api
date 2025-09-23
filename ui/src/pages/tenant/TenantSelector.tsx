@@ -3,23 +3,29 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/layout';
 import { useAuth } from '../../hooks';
 import { LocationState } from '../../types';
+import { api, setSkipAuthRedirect } from '../../services/api';
 
 const DEFAULT_TENANT = '_';
 
 export function TenantSelector() {
   const [customTenant, setCustomTenant] = useState('');
   const { auth, login } = useAuth();
-  const [username, setUsername] = useState(auth.username);
-  const [password, setPassword] = useState(auth.password);
+  const [username, setUsername] = useState(auth.username || '');
+  const [password, setPassword] = useState(auth.password || '');
   const [authError, setAuthError] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Update form fields when auth state changes
+  // Initialize form fields when auth state changes, but only if they're empty
   useEffect(() => {
-    setUsername(auth.username);
-    setPassword(auth.password);
-  }, [auth.username, auth.password]);
+    if (!username && auth.username) {
+      setUsername(auth.username);
+    }
+    if (!password && auth.password) {
+      setPassword(auth.password);
+    }
+  }, [auth.username, auth.password, username, password]);
 
   // If already authenticated and coming from a protected route, redirect back
   useEffect(() => {
@@ -38,24 +44,49 @@ export function TenantSelector() {
     }
   }, []);
 
-  const handleTenantAccess = (tenantId: string) => {
+  const handleTenantAccess = async (tenantId: string) => {
     if (!username.trim() || !password.trim()) {
       setAuthError('Please enter both username and password');
       return;
     }
 
-    login(username, password);
-    navigate(`/console/${tenantId}`);
+    setIsAuthenticating(true);
+    setAuthError('');
+
+    try {
+      // First, temporarily set auth state for testing
+      await login(username, password);
+      
+      // Skip auto-redirect for authentication test
+      setSkipAuthRedirect(true);
+      
+      // Test the authentication with a lightweight API call
+      await api.getEntries(tenantId, { size: 1 });
+      
+      // If successful, reset redirect flag and navigate to the console
+      setSkipAuthRedirect(false);
+      navigate(`/console/${tenantId}`);
+    } catch (error) {
+      // Reset redirect flag
+      setSkipAuthRedirect(false);
+      
+      // If authentication fails, show error and keep credentials in form
+      setAuthError('Invalid username or password');
+      console.error('Authentication failed:', error);
+      // Don't call logout() to preserve the form values
+    } finally {
+      setIsAuthenticating(false);
+    }
   };
 
   const handleDefaultTenant = () => {
-    handleTenantAccess(DEFAULT_TENANT);
+    void handleTenantAccess(DEFAULT_TENANT);
   };
 
   const handleCustomTenantSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (customTenant.trim()) {
-      handleTenantAccess(customTenant.trim());
+      void handleTenantAccess(customTenant.trim());
     }
   };
 
@@ -121,10 +152,12 @@ export function TenantSelector() {
           <div className="space-y-3">
             <button
               onClick={handleDefaultTenant}
-              disabled={!username.trim() || !password.trim()}
+              disabled={!username.trim() || !password.trim() || isAuthenticating}
               className="w-full text-left p-4 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
             >
-              <div className="font-medium text-gray-900">Default Tenant</div>
+              <div className="font-medium text-gray-900">
+                {isAuthenticating ? 'Authenticating...' : 'Default Tenant'}
+              </div>
               <div className="text-sm text-gray-500 mt-1">Use the default tenant for general entries</div>
               <div className="text-xs text-gray-400 mt-1">Tenant ID: {DEFAULT_TENANT}</div>
             </button>
@@ -159,10 +192,10 @@ export function TenantSelector() {
               </div>
               <button
                 type="submit"
-                disabled={!customTenant.trim() || !username.trim() || !password.trim()}
+                disabled={!customTenant.trim() || !username.trim() || !password.trim() || isAuthenticating}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                Access Custom Tenant
+                {isAuthenticating ? 'Authenticating...' : 'Access Custom Tenant'}
               </button>
             </form>
           </div>

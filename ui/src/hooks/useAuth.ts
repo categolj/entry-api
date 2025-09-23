@@ -8,7 +8,7 @@ interface AuthState {
 
 interface AuthContextType {
   auth: AuthState;
-  login: (username: string, password: string) => void;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   getAuthHeader: () => string | null;
 }
@@ -30,11 +30,16 @@ export function useAuthProvider(): AuthContextType {
     isAuthenticated: false,
   });
 
-  const login = (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<void> => {
     setAuth({
       username,
       password,
       isAuthenticated: true,
+    });
+    
+    // Return a promise that resolves on next tick to ensure state update
+    return new Promise(resolve => {
+      setTimeout(resolve, 0);
     });
   };
 

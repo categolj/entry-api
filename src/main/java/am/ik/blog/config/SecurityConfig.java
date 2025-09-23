@@ -84,7 +84,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.POST,   "/tenants/{tenantId}/admin/import").access(importForTenant)
 				.anyRequest().permitAll())
 			// @formatter:on
-			.httpBasic(Customizer.withDefaults())
+			.httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(new NoPopupBasicAuthenticationEntryPoint()))
 			.userDetailsService(userDetailsService)
 			.csrf(AbstractHttpConfigurer::disable)
 			.cors(Customizer.withDefaults())
