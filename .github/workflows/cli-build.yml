@@ -1,0 +1,173 @@
+name: Build CLI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'cli/**'
+      - '.github/workflows/cli-build.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'cli/**'
+      - '.github/workflows/cli-build.yml'
+  release:
+    types: [ published ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            binary-suffix: ""
+            archive-suffix: tar.gz
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            binary-suffix: ""
+            archive-suffix: tar.gz
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            binary-suffix: ""
+            archive-suffix: tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            binary-suffix: ""
+            archive-suffix: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary-suffix: .exe
+            archive-suffix: zip
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+
+    - name: Install musl tools
+      if: matrix.target == 'x86_64-unknown-linux-musl'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y musl-tools musl-dev
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo index
+      uses: actions/cache@v4
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Cache cargo build
+      uses: actions/cache@v4
+      with:
+        path: cli/target
+        key: ${{ runner.os }}-${{ matrix.target }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Update version in Cargo.toml
+      shell: bash
+      run: |
+        cd cli
+        if [ "${{ github.event_name }}" = "release" ]; then
+          # For releases, use the tag name as version (remove 'v' prefix if present)
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"  # Remove 'v' prefix if present
+        else
+          # For development builds, use dev version with run number
+          VERSION="1.0.0-dev.${{ github.run_number }}"
+        fi
+        sed -i.bak "s/^version = .*/version = \"$VERSION\"/" Cargo.toml
+        echo "Updated version to: $VERSION"
+        cat Cargo.toml | grep version
+
+    - name: Build
+      run: |
+        cd cli
+        cargo build --release --target ${{ matrix.target }}
+
+    - name: Run tests
+      if: matrix.target == 'x86_64-unknown-linux-gnu'
+      run: |
+        cd cli
+        cargo test --release --target ${{ matrix.target }}
+
+    - name: Prepare binary
+      shell: bash
+      run: |
+        cd cli
+        mkdir -p dist
+        cp target/${{ matrix.target }}/release/entry-cli${{ matrix.binary-suffix }} dist/
+
+    - name: Create archive (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: |
+        cd cli
+        Compress-Archive -Path "dist/entry-cli.exe" -DestinationPath "entry-cli-${{ matrix.target }}.zip"
+
+    - name: Create archive (Unix)
+      if: matrix.os != 'windows-latest'
+      shell: bash
+      run: |
+        cd cli/dist
+        tar czf ../entry-cli-${{ matrix.target }}.${{ matrix.archive-suffix }} entry-cli${{ matrix.binary-suffix }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: entry-cli-${{ matrix.target }}
+        path: cli/entry-cli-${{ matrix.target }}.${{ matrix.archive-suffix }}
+
+    - name: Upload to release
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: cli/entry-cli-${{ matrix.target }}.${{ matrix.archive-suffix }}
+        asset_name: entry-cli-${{ matrix.target }}.${{ matrix.archive-suffix }}
+        asset_content_type: application/octet-stream
+
+  # Job to create a development release with all artifacts
+  dev-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name != 'release'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts
+    
+    - name: Display structure of downloaded files
+      run: ls -laR ./artifacts
+    
+    - name: Create development release
+      uses: pyTooling/Actions/releaser@r0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: dev-latest
+        rm: true  # Remove old dev-latest release
+        files: |
+          ./artifacts/entry-cli-x86_64-unknown-linux-gnu/entry-cli-x86_64-unknown-linux-gnu.tar.gz
+          ./artifacts/entry-cli-x86_64-unknown-linux-musl/entry-cli-x86_64-unknown-linux-musl.tar.gz
+          ./artifacts/entry-cli-x86_64-apple-darwin/entry-cli-x86_64-apple-darwin.tar.gz
+          ./artifacts/entry-cli-aarch64-apple-darwin/entry-cli-aarch64-apple-darwin.tar.gz
+          ./artifacts/entry-cli-x86_64-pc-windows-msvc/entry-cli-x86_64-pc-windows-msvc.zip

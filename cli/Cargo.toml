@@ -1,0 +1,30 @@
+[package]
+name = "entry-cli"
+version = "0.1.0"
+edition = "2021"
+authors = ["Entry API CLI Contributors"]
+description = "Command line interface for Entry API"
+license = "MIT"
+readme = "README.md"
+
+[[bin]]
+name = "entry-cli"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.5", features = ["derive", "env"] }
+colored = "2.1"
+dirs = "5.0"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tabled = "0.16"
+tempfile = "3.13"
+thiserror = "2.0"
+tokio = { version = "1.41", features = ["full"] }
+toml = "0.8"
+
+[dev-dependencies]
+mockito = "1.5"
