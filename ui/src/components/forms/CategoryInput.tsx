@@ -8,7 +8,7 @@ interface CategoryInputProps {
   error?: string;
 }
 
-export function CategoryInput({ label, value, onChange, placeholder = "Add categories (e.g., Tech::Programming or individual categories)", error }: CategoryInputProps) {
+export function CategoryInput({ label, value, onChange, placeholder = "Add categories (e.g., Tech>Programming or individual categories)", error }: CategoryInputProps) {
   const [inputValue, setInputValue] = useState('');
   const inputId = `category-input-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -16,8 +16,8 @@ export function CategoryInput({ label, value, onChange, placeholder = "Add categ
     console.log('addCategory called with input:', inputValue);
     const trimmedValue = inputValue.trim();
     if (trimmedValue) {
-      // Split by :: to create individual category parts
-      const categoryParts = trimmedValue.split('::').map(part => part.trim()).filter(part => part);
+      // Split by > to create individual category parts
+      const categoryParts = trimmedValue.split('>').map(part => part.trim()).filter(part => part);
       if (categoryParts.length > 0) {
         // Add all category parts (allow duplicates)
         const newCategories = [...value, ...categoryParts];
@@ -69,7 +69,7 @@ export function CategoryInput({ label, value, onChange, placeholder = "Add categ
                 </span>
                 {index < value.length - 1 && (
                   <span className="text-purple-600 font-medium text-sm">
-                    ::
+                    {'>'}
                   </span>
                 )}
               </React.Fragment>

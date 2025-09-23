@@ -82,7 +82,7 @@ export function EntryList() {
   };
 
   const formatCategories = (categories: { name: string }[]) => {
-    return categories.map(c => c.name).join(', ');
+    return categories.map(c => c.name).join(' > ');
   };
 
   const formatTags = (tags: { name: string }[]) => {
