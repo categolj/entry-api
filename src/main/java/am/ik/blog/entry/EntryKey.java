@@ -1,12 +1,11 @@
 package am.ik.blog.entry;
 
 import am.ik.csv.Csv;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-public record EntryKey(Long entryId, String tenantId) implements Serializable {
+public record EntryKey(Long entryId, String tenantId) {
 
 	private static final Csv csv = Csv.builder().delimiter("|").build();
 

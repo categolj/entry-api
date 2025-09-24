@@ -1,14 +1,13 @@
 package am.ik.blog.entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import org.jspecify.annotations.Nullable;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
-public record Author(String name, @Nullable Instant date) implements Serializable {
+public record Author(String name, @Nullable Instant date) {
 
 	@JsonIgnore
 	public String rfc1123DateTime() {

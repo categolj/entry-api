@@ -1,11 +1,9 @@
 package am.ik.blog.entry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import java.io.Serializable;
 import org.jspecify.annotations.Nullable;
 
-public record Tag(String name,
-		@Nullable @JsonInclude(JsonInclude.Include.NON_EMPTY) String version) implements Serializable {
+public record Tag(String name, @Nullable @JsonInclude(JsonInclude.Include.NON_EMPTY) String version) {
 
 	public Tag(String name) {
 		this(name, null);

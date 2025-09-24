@@ -1,13 +1,11 @@
 package am.ik.blog.entry;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
-public record FrontMatter(String title, String summary, List<Category> categories,
-		List<Tag> tags) implements Serializable {
+public record FrontMatter(String title, String summary, List<Category> categories, List<Tag> tags) {
 
 	public static String DATE_FIELD = "date";
 
