@@ -189,6 +189,33 @@ class EntryControllerTest {
 	}
 
 	@ParameterizedTest
+	@CsvSource({ "/entries,,", "/entries,admin,changeme", "/tenants/t1/entries,admin,changeme",
+			"/tenants/t1/entries,readonly,secret" })
+	void getEntriesDefault(String path, String username, String password) {
+		String tenantId = path.startsWith("/tenants/") ? path.split("/")[2] : null;
+		prepareMockData(tenantId);
+		var response = this.restClient.get()
+			.uri(path)
+			.headers(configureAuth(username, password))
+			.retrieve()
+			.toEntity(new ParameterizedTypeReference<CursorPage<Entry, Instant>>() {
+			});
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		CursorPage<Entry, Instant> page = response.getBody();
+		assertThat(page).isNotNull();
+		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.hasPrevious()).isFalse();
+		assertThat(page.hasNext()).isFalse();
+		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY10, tenantId),
+				withTenantIdAndEmptyContent(ENTRY9, tenantId), withTenantIdAndEmptyContent(ENTRY8, tenantId),
+				withTenantIdAndEmptyContent(ENTRY7, tenantId), withTenantIdAndEmptyContent(ENTRY6, tenantId),
+				withTenantIdAndEmptyContent(ENTRY5, tenantId), withTenantIdAndEmptyContent(ENTRY4, tenantId),
+				withTenantIdAndEmptyContent(ENTRY3, tenantId), withTenantIdAndEmptyContent(ENTRY2, tenantId),
+				withTenantIdAndEmptyContent(ENTRY1, tenantId));
+
+	}
+
+	@ParameterizedTest
 	@CsvSource({ "/entries,,", "/tenants/t1/entries,admin,changeme", "/tenants/t1/entries,readonly,secret" })
 	void getEntriesWithQuery(String path, String username, String password) {
 		String tenantId = path.startsWith("/tenants/") ? path.split("/")[2] : null;
@@ -413,7 +440,8 @@ class EntryControllerTest {
 	}
 
 	@ParameterizedTest
-	@CsvSource({ "/entries/{entryId},,", "/tenants/t1/entries/{entryId},admin,changeme" })
+	@CsvSource({ "/entries/{entryId},,", "/entries/{entryId},admin,changeme",
+			"/tenants/t1/entries/{entryId},admin,changeme", "/tenants/t1/entries/{entryId},readonly,secret" })
 	void getEntry(String path, String username, String password) {
 		String tenantId = path.startsWith("/tenants/") ? path.split("/")[2] : null;
 		prepareMockData(tenantId);

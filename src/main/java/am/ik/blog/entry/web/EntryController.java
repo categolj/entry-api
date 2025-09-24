@@ -59,6 +59,10 @@ public class EntryController {
 	@GetMapping(path = { "/entries", "/tenants/{tenantId}/entries" })
 	public CursorPage<Entry, Instant> getEntries(@PathVariable(required = false) String tenantId,
 			@ModelAttribute SearchCriteria criteria, CursorPageRequest<Instant> pageRequest) {
+		if (criteria.isDefault() && pageRequest.pageSize() == 20 && pageRequest.cursor() == null) {
+			// Default request
+			return this.entryService.findLatest(tenantId, criteria, pageRequest);
+		}
 		return this.entryService.findOrderByUpdated(tenantId, criteria, pageRequest);
 	}
 

@@ -5,6 +5,11 @@ import java.util.List;
 
 public record SearchCriteria(String query, List<String> categories, String tag) {
 
+	public boolean isDefault() {
+		return (this.query == null || this.query.isBlank()) && (this.categories == null || this.categories.isEmpty())
+				&& (this.tag == null || this.tag.isBlank());
+	}
+
 	public static Builder builder() {
 		return new Builder();
 	}

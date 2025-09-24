@@ -1,6 +1,8 @@
 package am.ik.blog.config;
 
 import am.ik.blog.entry.Entry;
+import am.ik.pagination.CursorPage;
+import java.util.Map;
 import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
@@ -26,10 +28,15 @@ class RedisConfig implements CachingConfigurer {
 
 	@Bean
 	RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer(JsonMapper jsonMapper) {
-		return builder -> builder.withCacheConfiguration("entry",
-				RedisCacheConfiguration.defaultCacheConfig()
-					.serializeValuesWith(RedisSerializationContext.SerializationPair
-						.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, Entry.class))));
+		return builder -> builder
+			.withInitialCacheConfigurations(Map.of("entry",
+					RedisCacheConfiguration.defaultCacheConfig()
+						.serializeValuesWith(RedisSerializationContext.SerializationPair
+							.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, Entry.class))),
+					"latestEntries",
+					RedisCacheConfiguration.defaultCacheConfig()
+						.serializeValuesWith(RedisSerializationContext.SerializationPair
+							.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, CursorPage.class)))));
 	}
 
 }
