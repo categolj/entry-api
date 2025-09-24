@@ -4,6 +4,7 @@ import am.ik.blog.security.Authorized;
 import am.ik.blog.security.Privilege;
 import am.ik.pagination.CursorPage;
 import am.ik.pagination.CursorPageRequest;
+import io.micrometer.observation.annotation.Observed;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Retryable(includes = { OptimisticLockingFailureException.class }, maxAttempts = 4, delay = 100L, multiplier = 2,
 		jitter = 10L)
+@Observed
 public class EntryService {
 
 	private final EntryRepository entryRepository;

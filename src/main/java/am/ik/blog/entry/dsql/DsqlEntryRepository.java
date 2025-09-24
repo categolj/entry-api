@@ -451,6 +451,7 @@ public class DsqlEntryRepository implements EntryRepository {
 	}
 
 	@Override
+	@Transactional
 	public void updateSummary(EntryKey entryKey, String summary) {
 		this.jdbcClient
 			.sql("UPDATE entry SET summary = :summary WHERE public_entry_id = :publicEntryId AND tenant_id = :tenantId")
