@@ -1,6 +1,5 @@
 package am.ik.blog.entry;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +8,6 @@ import org.jspecify.annotations.Nullable;
 
 public record FrontMatter(String title, String summary, List<Category> categories,
 		List<Tag> tags) implements Serializable {
-
-	@Serial
-	private static final long serialVersionUID = 1L;
 
 	public static String DATE_FIELD = "date";
 
@@ -83,5 +79,4 @@ public record FrontMatter(String title, String summary, List<Category> categorie
 		}
 
 	}
-
 }

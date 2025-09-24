@@ -8,8 +8,6 @@ import org.jspecify.annotations.Nullable;
 
 public record EntryKey(Long entryId, String tenantId) implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-
 	private static final Csv csv = Csv.builder().delimiter("|").build();
 
 	public static String DEFAULT_TENANT_ID = "_";
