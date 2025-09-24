@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS entry (
     tenant_id VARCHAR(128) NOT NULL DEFAULT '_'::VARCHAR,
     categories TEXT NOT NULL DEFAULT '[]',
     tags TEXT NOT NULL DEFAULT '[]'
-);
+);;
 
 -- Create Inverted indexes tables because Aurora DSQL does not support GIN indexes
 CREATE TABLE IF NOT EXISTS entry_categories (
@@ -20,18 +20,18 @@ CREATE TABLE IF NOT EXISTS entry_categories (
     entry_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
     position INTEGER NOT NULL default 1
-);
+);;
 
 CREATE TABLE IF NOT EXISTS entry_tags (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     entry_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
     version VARCHAR(255)
-);
+);;
 
 -- Create the tokens table for full-text search because Aurora DSQL does not support pg_trgm extension
 CREATE TABLE IF NOT EXISTS entry_tokens (
     entry_id UUID NOT NULL,
     token VARCHAR(255) NOT NULL,
     PRIMARY KEY (entry_id, token)
-);
+);;
