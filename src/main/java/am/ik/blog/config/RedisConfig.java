@@ -2,8 +2,11 @@ package am.ik.blog.config;
 
 import am.ik.blog.entry.Entry;
 import am.ik.pagination.CursorPage;
+import io.lettuce.core.tracing.MicrometerTracing;
+import io.micrometer.observation.ObservationRegistry;
 import java.util.Map;
 import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
+import org.springframework.boot.data.redis.autoconfigure.ClientResourcesBuilderCustomizer;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.CacheErrorHandler;
@@ -24,6 +27,11 @@ class RedisConfig implements CachingConfigurer {
 	@Override
 	public CacheErrorHandler errorHandler() {
 		return new LoggingCacheErrorHandler(true);
+	}
+
+	@Bean
+	ClientResourcesBuilderCustomizer lettuceTracing(ObservationRegistry observationRegistry) {
+		return builder -> builder.tracing(new MicrometerTracing(observationRegistry, "entry-redis"));
 	}
 
 	@Bean
