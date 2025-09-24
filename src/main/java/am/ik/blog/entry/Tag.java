@@ -1,11 +1,15 @@
 package am.ik.blog.entry;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.io.Serial;
 import java.io.Serializable;
 import org.jspecify.annotations.Nullable;
 
 public record Tag(String name,
 		@Nullable @JsonInclude(JsonInclude.Include.NON_EMPTY) String version) implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 1L;
 
 	public Tag(String name) {
 		this(name, null);

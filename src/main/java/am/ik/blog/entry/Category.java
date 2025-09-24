@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public record Category(String name) implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	// Used for deserialization in Jackson
 	public static Category valueOf(String category) {
 		return new Category(category);

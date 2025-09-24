@@ -1,6 +1,7 @@
 package am.ik.blog.entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -9,6 +10,9 @@ import org.jspecify.annotations.Nullable;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
 public record Author(String name, @Nullable Instant date) implements Serializable {
+
+	@Serial
+	private static final long serialVersionUID = 1L;
 
 	@JsonIgnore
 	public String rfc1123DateTime() {
