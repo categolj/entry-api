@@ -3,12 +3,14 @@ package am.ik.blog.entry;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import java.io.Serializable;
 import java.time.Instant;
 import org.jspecify.annotations.Nullable;
 import org.springframework.util.StringUtils;
 
 public record Entry(@JsonUnwrapped EntryKey entryKey, FrontMatter frontMatter,
-		@Nullable @JsonInclude(JsonInclude.Include.NON_NULL) String content, Author created, Author updated) {
+		@Nullable @JsonInclude(JsonInclude.Include.NON_NULL) String content, Author created,
+		Author updated) implements Serializable {
 
 	public String toMarkdown() {
 		return """

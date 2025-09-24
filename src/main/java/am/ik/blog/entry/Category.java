@@ -1,6 +1,8 @@
 package am.ik.blog.entry;
 
-public record Category(String name) {
+import java.io.Serializable;
+
+public record Category(String name) implements Serializable {
 
 	// Used for deserialization in Jackson
 	public static Category valueOf(String category) {

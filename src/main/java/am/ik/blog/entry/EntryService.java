@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.core.parameters.P;
@@ -25,6 +27,7 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.GET)
+	@Cacheable(cacheNames = "entry", key = "#entryKey")
 	public Optional<Entry> findById(@Nullable @P("tenantId") String tenantId, EntryKey entryKey) {
 		return entryRepository.findById(entryKey);
 	}
@@ -51,6 +54,7 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
+	@CacheEvict(cacheNames = "entry", key = "#entry.entryKey")
 	public Entry save(@Nullable @P("tenantId") String tenantId, Entry entry) {
 		return entryRepository.save(entry);
 	}
@@ -61,21 +65,25 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
+	@CacheEvict(cacheNames = "entry", allEntries = true)
 	public void saveAll(@Nullable @P("tenantId") String tenantId, Entry... entries) {
 		entryRepository.saveAll(entries);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
+	@CacheEvict(cacheNames = "entry", allEntries = true)
 	public void saveAll(@Nullable @P("tenantId") String tenantId, List<Entry> entries) {
 		entryRepository.saveAll(entries);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.DELETE)
+	@CacheEvict(cacheNames = "entry", key = "#entryKey")
 	public void deleteById(@Nullable @P("tenantId") String tenantId, EntryKey entryKey) {
 		entryRepository.deleteById(entryKey);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
+	@CacheEvict(cacheNames = "entry", key = "#entryKey")
 	public void updateSummary(@Nullable @P("tenantId") String tenantId, EntryKey entryKey, String summary) {
 		entryRepository.updateSummary(entryKey, summary);
 	}
