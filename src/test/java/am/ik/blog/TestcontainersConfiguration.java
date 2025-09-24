@@ -21,7 +21,7 @@ public class TestcontainersConfiguration {
 	@ServiceConnection(name = "redis")
 	@Profile("redis")
 	GenericContainer<?> redisContainer() {
-		return new GenericContainer<>(DockerImageName.parse("redis:latest")).withExposedPorts(6379);
+		return new GenericContainer<>(DockerImageName.parse("redis:6.2")).withExposedPorts(6379);
 	}
 
 }
