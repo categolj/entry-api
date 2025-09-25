@@ -28,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.RestClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 				"blog.tenant.users[1]=readonly|{noop}secret|t1=GET,LIST",
 				"blog.tenant.users[2]=editor|{noop}password|_=EDIT,DELETE|t1=EDIT,DELETE,GET" })
 @Sql(scripts = { "classpath:sql/clean-table.sql" })
+@ActiveProfiles({ "redis" })
 class WebhookControllerTest {
 
 	RestClient restClient;

@@ -1,6 +1,7 @@
 package am.ik.blog.entry.web;
 
 import am.ik.blog.GitHubProps;
+import am.ik.blog.entry.CacheNames;
 import am.ik.blog.entry.Entry;
 import am.ik.blog.entry.EntryFetcher;
 import am.ik.blog.entry.EntryKey;
@@ -10,10 +11,16 @@ import am.ik.webhook.WebhookVerifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +48,12 @@ public class WebhookController {
 
 	private final JsonMapper jsonMapper;
 
+	@Nullable private final CacheManager cacheManager;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+
 	public WebhookController(GitHubProps props, EntryFetcher entryFetcher, EntryRepository entryRepository,
-			JsonMapper jsonMapper) {
+			JsonMapper jsonMapper, ObjectProvider<CacheManager> cacheManager) {
 		this.entryFetcher = entryFetcher;
 		this.entryRepository = entryRepository;
 		this.webhookVerifier = WebhookVerifier.gitHubSha256(props.getWebhookSecret());
@@ -52,6 +63,7 @@ public class WebhookController {
 			.collect(toUnmodifiableMap(Map.Entry::getKey,
 					e -> WebhookVerifier.gitHubSha256(e.getValue().getWebhookSecret())));
 		this.jsonMapper = jsonMapper;
+		this.cacheManager = cacheManager.getIfAvailable();
 	}
 
 	@PostMapping(path = { "/webhook", "/tenants/{tenantId}/webhook" })
@@ -82,6 +94,7 @@ public class WebhookController {
 		}
 		final Stream<JsonNode> commits = StreamSupport.stream(node.get("commits").spliterator(), false);
 		final List<Map<String, EntryKey>> result = new ArrayList<>();
+		final List<EntryKey> updatedEntries = new ArrayList<>();
 		commits.forEach(commit -> {
 			Stream.of("added", "modified").forEach(key -> {
 				this.paths(commit.get(key)).forEach(path -> {
@@ -89,6 +102,7 @@ public class WebhookController {
 					fetch.ifPresent(entry -> {
 						result.add(Map.of(key, entry.entryKey()));
 						this.entryRepository.save(entry);
+						updatedEntries.add(entry.entryKey());
 					});
 				});
 			});
@@ -97,9 +111,25 @@ public class WebhookController {
 				fetch.ifPresent(entryKey -> {
 					result.add(Map.of("removed", entryKey));
 					this.entryRepository.deleteById(entryKey);
+					updatedEntries.add(entryKey);
 				});
 			});
 		});
+		if (this.cacheManager != null) {
+			Cache latestEntriesCache = this.cacheManager.getCache(CacheNames.LATEST_ENTRIES);
+			Cache entryCache = this.cacheManager.getCache(CacheNames.ENTRY);
+			if (entryCache != null) {
+				for (EntryKey entryKey : updatedEntries) {
+					logger.info("Evicting entry cache for entryKey: {}", entryKey);
+					entryCache.evict(entryKey);
+				}
+			}
+			if (latestEntriesCache != null) {
+				String key = Objects.requireNonNullElse(tenantId, EntryKey.DEFAULT_TENANT_ID);
+				logger.info("Evicting latestEntries cache for tenantId: {}", key);
+				latestEntriesCache.evict(key);
+			}
+		}
 		return Optional.of(result);
 	}
 

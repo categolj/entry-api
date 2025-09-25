@@ -1,5 +1,6 @@
 package am.ik.blog.config;
 
+import am.ik.blog.entry.CacheNames;
 import am.ik.blog.entry.Entry;
 import am.ik.pagination.CursorPage;
 import io.lettuce.core.tracing.MicrometerTracing;
@@ -36,15 +37,14 @@ class RedisConfig implements CachingConfigurer {
 
 	@Bean
 	RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer(JsonMapper jsonMapper) {
-		return builder -> builder
-			.withInitialCacheConfigurations(Map.of("entry",
-					RedisCacheConfiguration.defaultCacheConfig()
-						.serializeValuesWith(RedisSerializationContext.SerializationPair
-							.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, Entry.class))),
-					"latestEntries",
-					RedisCacheConfiguration.defaultCacheConfig()
-						.serializeValuesWith(RedisSerializationContext.SerializationPair
-							.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, CursorPage.class)))));
+		return builder -> builder.withInitialCacheConfigurations(Map.of(CacheNames.ENTRY,
+				RedisCacheConfiguration.defaultCacheConfig()
+					.serializeValuesWith(RedisSerializationContext.SerializationPair
+						.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, Entry.class))),
+				CacheNames.LATEST_ENTRIES,
+				RedisCacheConfiguration.defaultCacheConfig()
+					.serializeValuesWith(RedisSerializationContext.SerializationPair
+						.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, CursorPage.class)))));
 	}
 
 }

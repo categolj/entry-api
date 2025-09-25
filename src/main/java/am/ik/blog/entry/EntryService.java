@@ -30,7 +30,7 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.GET)
-	@Cacheable(cacheNames = "entry", key = "#entryKey")
+	@Cacheable(cacheNames = CacheNames.ENTRY, key = "#entryKey")
 	public Optional<Entry> findById(@Nullable @P("tenantId") String tenantId, EntryKey entryKey) {
 		return entryRepository.findById(entryKey);
 	}
@@ -47,7 +47,7 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.LIST)
-	@Cacheable(cacheNames = "latestEntries", key = "#tenantId ?: '_'")
+	@Cacheable(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'")
 	public CursorPage<Entry, Instant> findLatest(@Nullable @P("tenantId") String tenantId,
 			SearchCriteria searchCriteria, CursorPageRequest<Instant> pageRequest) {
 		return entryRepository.findOrderByUpdated(tenantId, searchCriteria, pageRequest);
@@ -64,8 +64,8 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = "entry", key = "#entry.entryKey"),
-			@CacheEvict(cacheNames = "latestEntries", key = "#tenantId ?: '_'") })
+	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, key = "#entry.entryKey"),
+			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public Entry save(@Nullable @P("tenantId") String tenantId, Entry entry) {
 		return entryRepository.save(entry);
 	}
@@ -76,29 +76,29 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = "entry", allEntries = true),
-			@CacheEvict(cacheNames = "latestEntries", key = "#tenantId ?: '_'") })
+	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, allEntries = true),
+			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void saveAll(@Nullable @P("tenantId") String tenantId, Entry... entries) {
 		entryRepository.saveAll(entries);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = "entry", allEntries = true),
-			@CacheEvict(cacheNames = "latestEntries", key = "#tenantId ?: '_'") })
+	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, allEntries = true),
+			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void saveAll(@Nullable @P("tenantId") String tenantId, List<Entry> entries) {
 		entryRepository.saveAll(entries);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.DELETE)
-	@Caching(evict = { @CacheEvict(cacheNames = "entry", key = "#entryKey"),
-			@CacheEvict(cacheNames = "latestEntries", key = "#tenantId ?: '_'") })
+	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, key = "#entryKey"),
+			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void deleteById(@Nullable @P("tenantId") String tenantId, EntryKey entryKey) {
 		entryRepository.deleteById(entryKey);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = "entry", key = "#entryKey"),
-			@CacheEvict(cacheNames = "latestEntries", key = "#tenantId ?: '_'") })
+	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, key = "#entryKey"),
+			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void updateSummary(@Nullable @P("tenantId") String tenantId, EntryKey entryKey, String summary) {
 		entryRepository.updateSummary(entryKey, summary);
 	}
