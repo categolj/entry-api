@@ -203,7 +203,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY10, tenantId),
@@ -229,7 +229,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY6, tenantId),
@@ -250,7 +250,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY6, tenantId));
@@ -270,7 +270,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY5, tenantId));
@@ -290,7 +290,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY4, tenantId),
@@ -311,7 +311,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY3, tenantId),
@@ -332,7 +332,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY4, tenantId),
@@ -357,7 +357,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(20);
+		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY3, tenantId));

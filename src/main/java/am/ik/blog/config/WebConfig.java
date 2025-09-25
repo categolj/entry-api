@@ -1,6 +1,7 @@
 package am.ik.blog.config;
 
 import am.ik.blog.GitHubProps;
+import am.ik.blog.entry.web.EntryController;
 import am.ik.pagination.web.CursorPageRequestHandlerMethodArgumentResolver;
 import am.ik.webhook.spring.WebhookVerifierRequestBodyAdvice;
 import java.time.Instant;
@@ -16,8 +17,8 @@ class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-		resolvers.add(
-				new CursorPageRequestHandlerMethodArgumentResolver<>(Instant::parse, props -> props.withSizeMax(1024)));
+		resolvers.add(new CursorPageRequestHandlerMethodArgumentResolver<>(Instant::parse,
+				props -> props.withSizeDefault(EntryController.DEFAULT_PAGE_SIZE).withSizeMax(1024)));
 	}
 
 	@Override
