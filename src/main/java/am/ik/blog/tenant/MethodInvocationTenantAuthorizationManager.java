@@ -4,14 +4,22 @@ import am.ik.blog.security.Authorized;
 import am.ik.blog.security.Privilege;
 import am.ik.blog.util.Tuple2;
 import am.ik.blog.util.Tuples;
+import io.micrometer.observation.annotation.Observed;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Set;
 import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.Nullable;
+
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Role;
 import org.springframework.security.core.parameters.P;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
+@Component
+@Observed
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class MethodInvocationTenantAuthorizationManager extends AbstractTenantAuthorizationManager<MethodInvocation> {
 
 	@Override

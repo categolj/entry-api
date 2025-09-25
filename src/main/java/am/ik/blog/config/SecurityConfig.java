@@ -51,9 +51,8 @@ public class SecurityConfig {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor preAuthorize() {
-		return AuthorizationManagerBeforeMethodInterceptor
-			.preAuthorize(new MethodInvocationTenantAuthorizationManager());
+	Advisor preAuthorize(MethodInvocationTenantAuthorizationManager methodInvocationTenantAuthorizationManager) {
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(methodInvocationTenantAuthorizationManager);
 	}
 
 	@Bean
