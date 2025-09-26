@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -46,8 +47,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Observed
 public class EntryController {
 
-	public static final int DEFAULT_PAGE_SIZE = 30;
-
 	private final EntryService entryService;
 
 	private final EntryParser entryParser;
@@ -63,9 +62,10 @@ public class EntryController {
 	@GetMapping(path = { "/entries", "/tenants/{tenantId}/entries" })
 	public CursorPage<Entry, Instant> getEntries(@PathVariable(required = false) String tenantId,
 			@ModelAttribute SearchCriteria criteria, CursorPageRequest<Instant> pageRequest) {
-		if (criteria.isDefault() && pageRequest.pageSize() == DEFAULT_PAGE_SIZE && pageRequest.cursor() == null) {
+		if (criteria.isDefault() && pageRequest.pageSize() == EntryService.DEFAULT_PAGE_SIZE
+				&& pageRequest.cursor() == null) {
 			// Default request
-			return this.entryService.findLatest(tenantId, criteria, pageRequest);
+			return this.entryService.findLatest(tenantId);
 		}
 		return this.entryService.findOrderByUpdated(tenantId, criteria, pageRequest);
 	}

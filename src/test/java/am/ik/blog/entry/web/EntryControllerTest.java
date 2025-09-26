@@ -6,6 +6,7 @@ import am.ik.blog.entry.Category;
 import am.ik.blog.entry.Entry;
 import am.ik.blog.entry.EntryKey;
 import am.ik.blog.entry.EntryRepository;
+import am.ik.blog.entry.EntryService;
 import am.ik.blog.entry.FrontMatter;
 import am.ik.blog.entry.MockData;
 import am.ik.blog.entry.Tag;
@@ -203,7 +204,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY10, tenantId),
@@ -229,7 +230,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY6, tenantId),
@@ -250,7 +251,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY6, tenantId));
@@ -270,7 +271,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY5, tenantId));
@@ -290,7 +291,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY4, tenantId),
@@ -311,7 +312,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY3, tenantId),
@@ -332,7 +333,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY4, tenantId),
@@ -357,7 +358,7 @@ class EntryControllerTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		CursorPage<Entry, Instant> page = response.getBody();
 		assertThat(page).isNotNull();
-		assertThat(page.size()).isEqualTo(EntryController.DEFAULT_PAGE_SIZE);
+		assertThat(page.size()).isEqualTo(EntryService.DEFAULT_PAGE_SIZE);
 		assertThat(page.hasPrevious()).isFalse();
 		assertThat(page.hasNext()).isFalse();
 		assertThat(page.content()).containsExactly(withTenantIdAndEmptyContent(ENTRY3, tenantId));

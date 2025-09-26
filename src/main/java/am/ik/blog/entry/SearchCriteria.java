@@ -5,6 +5,8 @@ import java.util.List;
 
 public record SearchCriteria(String query, List<String> categories, String tag) {
 
+	public static SearchCriteria NULL_CRITERIA = new SearchCriteria(null, null, null);
+
 	public boolean isDefault() {
 		return (this.query == null || this.query.isBlank()) && (this.categories == null || this.categories.isEmpty())
 				&& (this.tag == null || this.tag.isBlank());

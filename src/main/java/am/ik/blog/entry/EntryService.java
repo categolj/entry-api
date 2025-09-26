@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -22,6 +23,11 @@ import org.springframework.stereotype.Service;
 		jitter = 10L)
 @Observed
 public class EntryService {
+
+	public static final int DEFAULT_PAGE_SIZE = 30;
+
+	private static final CursorPageRequest<Instant> DEFAULT_CURSOR_REQUEST = new CursorPageRequest<>(null,
+			DEFAULT_PAGE_SIZE, CursorPageRequest.Navigation.NEXT);
 
 	private final EntryRepository entryRepository;
 
@@ -48,9 +54,8 @@ public class EntryService {
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.LIST)
 	@Cacheable(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'")
-	public CursorPage<Entry, Instant> findLatest(@Nullable @P("tenantId") String tenantId,
-			SearchCriteria searchCriteria, CursorPageRequest<Instant> pageRequest) {
-		return entryRepository.findOrderByUpdated(tenantId, searchCriteria, pageRequest);
+	public CursorPage<Entry, Instant> findLatest(@Nullable @P("tenantId") String tenantId) {
+		return entryRepository.findOrderByUpdated(tenantId, SearchCriteria.NULL_CRITERIA, DEFAULT_CURSOR_REQUEST);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.LIST)
