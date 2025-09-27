@@ -1,6 +1,7 @@
 package am.ik.blog.config;
 
 import am.ik.blog.security.CompositeUserDetailsService;
+import am.ik.blog.security.ObservablePasswordEncoder;
 import am.ik.blog.security.Privilege;
 import am.ik.blog.tenant.MethodInvocationTenantAuthorizationManager;
 import am.ik.blog.tenant.RequestTenantAuthorizationManager;
@@ -13,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -32,6 +32,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -54,7 +55,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http, CompositeUserDetailsService userDetailsService)
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, UserDetailsService userDetailsService)
 			throws Exception {
 		var listForTenant = new RequestTenantAuthorizationManager("entry", Privilege.LIST);
 		var getForTenant = new RequestTenantAuthorizationManager("entry", Privilege.GET);
@@ -92,8 +93,8 @@ public class SecurityConfig {
 	@SuppressWarnings("deprecation")
 	@Bean
 	PasswordEncoder passwordEncoder() {
-		return new DelegatingPasswordEncoder("bcrypt",
-				Map.of("bcrypt", new BCryptPasswordEncoder(), "noop", NoOpPasswordEncoder.getInstance()));
+		return new ObservablePasswordEncoder(new DelegatingPasswordEncoder("bcrypt",
+				Map.of("bcrypt", new BCryptPasswordEncoder(), "noop", NoOpPasswordEncoder.getInstance())));
 	}
 
 	@Bean
