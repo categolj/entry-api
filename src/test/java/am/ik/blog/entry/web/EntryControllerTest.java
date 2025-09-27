@@ -399,8 +399,8 @@ class EntryControllerTest {
 			});
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).isNotNull();
-		assertThat(response.getBody()).containsExactly(withTenantId(ENTRY1, tenantId), withTenantId(ENTRY3, tenantId),
-				withTenantId(ENTRY5, tenantId));
+		assertThat(response.getBody()).containsExactly(withTenantIdAndEmptyContent(ENTRY1, tenantId),
+				withTenantIdAndEmptyContent(ENTRY3, tenantId), withTenantIdAndEmptyContent(ENTRY5, tenantId));
 	}
 
 	@ParameterizedTest
@@ -419,7 +419,8 @@ class EntryControllerTest {
 			});
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(response.getBody()).isNotNull();
-		assertThat(response.getBody()).containsExactly(withTenantId(ENTRY1, tenantId), withTenantId(ENTRY5, tenantId));
+		assertThat(response.getBody()).containsExactly(withTenantIdAndEmptyContent(ENTRY1, tenantId),
+				withTenantIdAndEmptyContent(ENTRY5, tenantId));
 	}
 
 	@ParameterizedTest

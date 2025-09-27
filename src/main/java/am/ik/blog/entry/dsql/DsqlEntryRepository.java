@@ -151,7 +151,7 @@ public class DsqlEntryRepository implements EntryRepository {
 				    public_entry_id,
 				    title,
 				    summary,
-				    content,
+				    '' as content,
 				    created_by,
 				    created_date,
 				    last_modified_by,
