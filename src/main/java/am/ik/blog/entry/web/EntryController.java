@@ -12,7 +12,6 @@ import am.ik.blog.entry.Tag;
 import am.ik.blog.entry.TagAndCount;
 import am.ik.pagination.CursorPage;
 import am.ik.pagination.CursorPageRequest;
-import io.micrometer.observation.annotation.Observed;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
@@ -21,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -44,7 +42,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
-@Observed
 public class EntryController {
 
 	private final EntryService entryService;
