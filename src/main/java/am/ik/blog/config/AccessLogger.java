@@ -22,7 +22,7 @@ import org.springframework.boot.actuate.web.exchanges.HttpExchange.Response;
 import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
 import org.springframework.util.CollectionUtils;
 
-public class AccessLogger implements HttpExchangeRepository {
+class AccessLogger implements HttpExchangeRepository {
 
 	private final Predicate<HttpExchange> filter;
 

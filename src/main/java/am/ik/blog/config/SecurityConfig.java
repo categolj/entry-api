@@ -1,7 +1,6 @@
 package am.ik.blog.config;
 
 import am.ik.blog.security.CompositeUserDetailsService;
-import am.ik.blog.security.ObservablePasswordEncoder;
 import am.ik.blog.security.Privilege;
 import am.ik.blog.tenant.MethodInvocationTenantAuthorizationManager;
 import am.ik.blog.tenant.RequestTenantAuthorizationManager;

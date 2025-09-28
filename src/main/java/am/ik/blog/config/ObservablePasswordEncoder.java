@@ -1,4 +1,4 @@
-package am.ik.blog.security;
+package am.ik.blog.config;
 
 import io.micrometer.observation.annotation.Observed;
 import org.jspecify.annotations.NonNull;
@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Observed
-public class ObservablePasswordEncoder implements PasswordEncoder {
+class ObservablePasswordEncoder implements PasswordEncoder {
 
 	private final PasswordEncoder delegate;
 
