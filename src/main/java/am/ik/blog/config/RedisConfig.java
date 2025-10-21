@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.serializer.Jackson3JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -40,11 +40,11 @@ class RedisConfig implements CachingConfigurer {
 		return builder -> builder.withInitialCacheConfigurations(Map.of(CacheNames.ENTRY,
 				RedisCacheConfiguration.defaultCacheConfig()
 					.serializeValuesWith(RedisSerializationContext.SerializationPair
-						.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, Entry.class))),
+						.fromSerializer(new JacksonJsonRedisSerializer<>(jsonMapper, Entry.class))),
 				CacheNames.LATEST_ENTRIES,
 				RedisCacheConfiguration.defaultCacheConfig()
 					.serializeValuesWith(RedisSerializationContext.SerializationPair
-						.fromSerializer(new Jackson3JsonRedisSerializer<>(jsonMapper, CursorPage.class)))));
+						.fromSerializer(new JacksonJsonRedisSerializer<>(jsonMapper, CursorPage.class)))));
 	}
 
 }
