@@ -35,13 +35,7 @@ public class MockConfig {
 		return registry -> {
 			int port = mockServer.port();
 			registry.add("blog.github.api-url", () -> "http://127.0.0.1:%d".formatted(port));
-			registry.add("blog.github.content-owner", () -> "public");
-			registry.add("blog.github.content-repo", () -> "blog");
-			registry.add("blog.github.access-token", () -> "important");
 			registry.add("blog.github.tenants.t1.api-url", () -> "http://127.0.0.1:%d".formatted(port));
-			registry.add("blog.github.tenants.t1.content-owner", () -> "private");
-			registry.add("blog.github.tenants.t1.content-repo", () -> "blog");
-			registry.add("blog.github.tenants.t1.access-token", () -> "secret");
 		};
 	}
 

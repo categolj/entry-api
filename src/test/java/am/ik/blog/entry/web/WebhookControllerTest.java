@@ -42,7 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = { "blog.tenant.users[0]=blog-ui|{noop}empty|_=GET,LIST",
 				"blog.tenant.users[1]=readonly|{noop}secret|t1=GET,LIST",
-				"blog.tenant.users[2]=editor|{noop}password|_=EDIT,DELETE|t1=EDIT,DELETE,GET" })
+				"blog.tenant.users[2]=editor|{noop}password|_=EDIT,DELETE|t1=EDIT,DELETE,GET",
+				"blog.github.content-owner=public", "blog.github.content-repo=blog",
+				"blog.github.access-token=important", "blog.github.tenants.t1.content-owner=private",
+				"blog.github.tenants.t1.content-repo=blog", "blog.github.tenants.t1.access-token=secret" })
 @Sql(scripts = { "classpath:sql/clean-table.sql" })
 @ActiveProfiles({ "redis" })
 class WebhookControllerTest {

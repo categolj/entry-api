@@ -12,12 +12,12 @@ import am.ik.blog.github.GitCommitter;
 import am.ik.blog.github.GitHubClient;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.service.registry.HttpServiceProxyRegistry;
 
 @Component
 public class GithubEntryFetcher implements EntryFetcher {
@@ -26,15 +26,14 @@ public class GithubEntryFetcher implements EntryFetcher {
 
 	private final GitHubClient gitHubClient;
 
-	private final Map<String, GitHubClient> tenantsGitHubClient;
+	private final HttpServiceProxyRegistry registry;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public GithubEntryFetcher(EntryParser entryParser, GitHubClient gitHubClient,
-			Map<String, GitHubClient> tenantsGitHubClient) {
+	public GithubEntryFetcher(EntryParser entryParser, HttpServiceProxyRegistry registry) {
 		this.entryParser = entryParser;
-		this.gitHubClient = gitHubClient;
-		this.tenantsGitHubClient = tenantsGitHubClient;
+		this.gitHubClient = registry.getClient("github", GitHubClient.class);
+		this.registry = registry;
 	}
 
 	@Override
@@ -44,7 +43,7 @@ public class GithubEntryFetcher implements EntryFetcher {
 			gitHubClient = this.gitHubClient;
 		}
 		else {
-			gitHubClient = this.tenantsGitHubClient.getOrDefault(tenantId, this.gitHubClient);
+			gitHubClient = this.registry.getClient("github.%s".formatted(tenantId), GitHubClient.class);
 		}
 		Long entryId = Entry.parseId(Paths.get(path).getFileName().toString());
 		EntryKey entryKey = new EntryKey(entryId, tenantId);

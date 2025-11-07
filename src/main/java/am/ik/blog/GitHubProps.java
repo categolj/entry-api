@@ -4,7 +4,6 @@ import am.ik.yavi.builder.ValidatorBuilder;
 import java.time.Duration;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.ExponentialBackOff;
 import org.springframework.validation.Errors;
@@ -13,7 +12,6 @@ import org.springframework.validation.Validator;
 import static am.ik.yavi.constraint.charsequence.codepoints.AsciiCodePoints.ASCII_PRINTABLE_CHARS;
 
 @ConfigurationProperties(prefix = "blog.github")
-// @Component
 public class GitHubProps implements Validator {
 
 	private String apiUrl = "https://api.github.com";
