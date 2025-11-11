@@ -1,6 +1,8 @@
 package am.ik.blog.entry;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import org.jspecify.annotations.Nullable;
+import org.springframework.util.Assert;
 
 public record TagAndCount(@JsonUnwrapped Tag tag, int count) {
 
@@ -14,7 +16,7 @@ public record TagAndCount(@JsonUnwrapped Tag tag, int count) {
 
 	public static class Builder {
 
-		private Tag tag;
+		@Nullable private Tag tag;
 
 		private int count;
 
@@ -32,6 +34,7 @@ public record TagAndCount(@JsonUnwrapped Tag tag, int count) {
 		}
 
 		public TagAndCount build() {
+			Assert.notNull(tag, "tag must not be null");
 			return new TagAndCount(tag, count);
 		}
 

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.Nullable;
 
 public class KuromojiTokenizer implements Tokenizer {
 
@@ -35,7 +36,7 @@ public class KuromojiTokenizer implements Tokenizer {
 	}
 
 	@Override
-	public Set<String> tokenize(String text) {
+	public Set<String> tokenize(@Nullable String text) {
 		if (text == null || text.trim().isEmpty()) {
 			return Set.of();
 		}

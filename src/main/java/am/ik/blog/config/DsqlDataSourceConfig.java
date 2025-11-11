@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -123,7 +124,7 @@ class DsqlDataSourceConfig {
 		SQLStateSQLExceptionTranslator delegate = new SQLStateSQLExceptionTranslator();
 
 		@Override
-		public DataAccessException translate(String task, String sql, SQLException ex) {
+		@Nullable public DataAccessException translate(String task, @Nullable String sql, SQLException ex) {
 			if (DSQL_OPTIMISTIC_CONCURRENCY_ERROR_STATE.equals(ex.getSQLState())) {
 				throw new OptimisticLockingFailureException(ex.getMessage(), ex);
 			}

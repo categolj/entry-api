@@ -95,8 +95,8 @@ class WebhookControllerTest {
 				.categories(List.of(new Category("Programming"), new Category("Java")))
 				.tags(List.of(new Tag("cache"), new Tag("aside")))
 				.build())
-			.created(Author.builder().build())
-			.updated(Author.builder().build())
+			.created(Author.builder().name("demo").build())
+			.updated(Author.builder().name("demo").build())
 			.build();
 		this.mockServer
 			.GET("/repos/%s/contents/content/00100.md".formatted(repo),
@@ -157,8 +157,8 @@ class WebhookControllerTest {
 				.categories(List.of(new Category("Programming"), new Category("Java")))
 				.tags(List.of(new Tag("cache"), new Tag("aside")))
 				.build())
-			.created(Author.builder().build())
-			.updated(Author.builder().build())
+			.created(Author.builder().name("demo").build())
+			.updated(Author.builder().name("demo").build())
 			.build();
 		this.mockServer
 			.GET("/repos/%s/contents/content/00100.md".formatted(repo),

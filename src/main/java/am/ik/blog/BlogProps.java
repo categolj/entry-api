@@ -1,5 +1,6 @@
 package am.ik.blog;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "blog")
@@ -35,7 +36,7 @@ public final class BlogProps {
 
 		private boolean enabled = false;
 
-		private String tenantId;
+		@Nullable private String tenantId;
 
 		private Fetch fetch = new Fetch();
 
@@ -47,7 +48,7 @@ public final class BlogProps {
 			this.enabled = enabled;
 		}
 
-		public String getTenantId() {
+		@Nullable public String getTenantId() {
 			return tenantId;
 		}
 

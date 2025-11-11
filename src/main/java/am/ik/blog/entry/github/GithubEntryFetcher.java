@@ -50,8 +50,8 @@ public class GithubEntryFetcher implements EntryFetcher {
 		File file = gitHubClient.getFile(owner, repo, path);
 		logger.info("Retrieved file: {}", file.url());
 		List<Commit> commits = gitHubClient.getCommits(owner, repo, new CommitParameter().path(path).queryParams());
-		Author created = commits.isEmpty() ? null : toAuthor(commits.getLast());
-		Author updated = commits.isEmpty() ? null : toAuthor(commits.getFirst());
+		Author created = commits.isEmpty() ? Author.builder().name("unknown").build() : toAuthor(commits.getLast());
+		Author updated = commits.isEmpty() ? Author.builder().name("unknown").build() : toAuthor(commits.getFirst());
 		return Optional.of(this.entryParser.fromMarkdown(entryKey, file.decode(), created, updated).build());
 	}
 

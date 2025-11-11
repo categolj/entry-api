@@ -4,6 +4,7 @@ import am.ik.csv.Csv;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
+import org.springframework.util.Assert;
 
 public record EntryKey(Long entryId, String tenantId) {
 
@@ -54,9 +55,9 @@ public record EntryKey(Long entryId, String tenantId) {
 
 	public static class Builder {
 
-		private Long entryId;
+		@Nullable private Long entryId;
 
-		private @Nullable String tenantId;
+		@Nullable private String tenantId;
 
 		private Builder() {
 		}
@@ -72,6 +73,7 @@ public record EntryKey(Long entryId, String tenantId) {
 		}
 
 		public EntryKey build() {
+			Assert.notNull(entryId, "entryId must not be null");
 			return new EntryKey(entryId, tenantId);
 		}
 

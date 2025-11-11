@@ -16,8 +16,7 @@ public class EntryParser {
 		this.jsonMapper = jsonMapper;
 	}
 
-	@SuppressWarnings("unchecked")
-	public Entry.Builder fromMarkdown(EntryKey entryKey, String markdown, Author altCreated, Author altUpdated) {
+	public Entry.Builder fromMarkdown(EntryKey entryKey, String markdown, Author created, Author updated) {
 		Map<String, Object> json = MarkdownToJson.convert(markdown);
 		Map<String, Object> frontMatter = (Map<String, Object>) json.get("frontMatter");
 		Assert.notNull(frontMatter, "FrontMatter must not be null");
@@ -25,9 +24,9 @@ public class EntryParser {
 			.toBuilder()
 			.entryKey(entryKey)
 			.created(frontMatter.containsKey(FrontMatter.DATE_FIELD)
-					? altCreated.withDate(((Date) frontMatter.get(FrontMatter.DATE_FIELD)).toInstant()) : altCreated)
+					? created.withDate(((Date) frontMatter.get(FrontMatter.DATE_FIELD)).toInstant()) : created)
 			.updated(frontMatter.containsKey(FrontMatter.UPDATE_FIELD)
-					? altUpdated.withDate(((Date) frontMatter.get(FrontMatter.UPDATE_FIELD)).toInstant()) : altUpdated);
+					? updated.withDate(((Date) frontMatter.get(FrontMatter.UPDATE_FIELD)).toInstant()) : updated);
 	}
 
 }

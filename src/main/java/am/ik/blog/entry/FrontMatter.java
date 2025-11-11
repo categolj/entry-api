@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
+import org.springframework.util.Assert;
 
 public record FrontMatter(String title, String summary, List<Category> categories, List<Tag> tags) {
 
@@ -31,9 +32,9 @@ public record FrontMatter(String title, String summary, List<Category> categorie
 
 	public static class Builder {
 
-		private String title;
+		@Nullable private String title;
 
-		private @Nullable String summary;
+		@Nullable private String summary;
 
 		private List<Category> categories = new ArrayList<>();
 
@@ -73,6 +74,7 @@ public record FrontMatter(String title, String summary, List<Category> categorie
 		}
 
 		public FrontMatter build() {
+			Assert.hasText(title, "title must not be empty");
 			return new FrontMatter(title, summary, List.copyOf(categories), List.copyOf(tags));
 		}
 

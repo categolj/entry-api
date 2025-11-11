@@ -88,7 +88,7 @@ class GitHubConfig {
 
 		private final Logger logger = LoggerFactory.getLogger(getClass());
 
-		private Set<String> githubTenantIds;
+		@Nullable private Set<String> githubTenantIds;
 
 		@Override
 		public void setEnvironment(Environment environment) {

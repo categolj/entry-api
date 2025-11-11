@@ -4,12 +4,13 @@ import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 public class TrigramTokenizer implements Tokenizer {
 
 	@Override
 	// Generate tri-grams from the input text
-	public Set<String> tokenize(String text) {
+	public Set<String> tokenize(@Nullable String text) {
 		if (text == null || text.trim().isEmpty()) {
 			return Set.of();
 		}

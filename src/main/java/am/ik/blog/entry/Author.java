@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import org.jspecify.annotations.Nullable;
+import org.springframework.util.Assert;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
@@ -31,9 +32,9 @@ public record Author(String name, @Nullable Instant date) {
 
 	public static class Builder {
 
-		private String name;
+		@Nullable private String name;
 
-		private @Nullable Instant date;
+		@Nullable private Instant date;
 
 		private Builder() {
 		}
@@ -49,6 +50,7 @@ public record Author(String name, @Nullable Instant date) {
 		}
 
 		public Author build() {
+			Assert.hasText(this.name, "name must not be empty");
 			return new Author(name, date);
 		}
 

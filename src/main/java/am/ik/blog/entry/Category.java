@@ -1,5 +1,8 @@
 package am.ik.blog.entry;
 
+import org.jspecify.annotations.Nullable;
+import org.springframework.util.Assert;
+
 public record Category(String name) {
 
 	// Used for deserialization in Jackson
@@ -17,7 +20,7 @@ public record Category(String name) {
 
 	public static class Builder {
 
-		private String name;
+		@Nullable private String name;
 
 		private Builder() {
 		}
@@ -28,6 +31,7 @@ public record Category(String name) {
 		}
 
 		public Category build() {
+			Assert.hasText(this.name, "name must not be empty");
 			return new Category(name);
 		}
 

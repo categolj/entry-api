@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
@@ -75,7 +76,7 @@ public class EntryController {
 	}
 
 	@GetMapping(path = { "/entries/{entryId:\\d+}", "/tenants/{tenantId}/entries/{entryId:\\d+}" })
-	public ResponseEntity<?> getEntry(@PathVariable Long entryId, @PathVariable(required = false) String tenantId,
+	@Nullable public ResponseEntity<?> getEntry(@PathVariable Long entryId, @PathVariable(required = false) String tenantId,
 			WebRequest webRequest) {
 		EntryKey entryKey = new EntryKey(entryId, tenantId);
 		Optional<Entry> entry = this.entryService.findById(tenantId, entryKey);
@@ -88,7 +89,7 @@ public class EntryController {
 	}
 
 	@GetMapping(path = { "/entries/{entryId:\\d+}.md", "/tenants/{tenantId}/entries/{entryId:\\d+}.md" })
-	public ResponseEntity<?> getEntryAsMarkdown(@PathVariable Long entryId,
+	@Nullable public ResponseEntity<?> getEntryAsMarkdown(@PathVariable Long entryId,
 			@PathVariable(required = false) String tenantId, WebRequest webRequest) {
 		EntryKey entryKey = new EntryKey(entryId, tenantId);
 		Optional<Entry> entry = this.entryService.findById(tenantId, entryKey);
@@ -229,7 +230,7 @@ public class EntryController {
 			.toMarkdown();
 	}
 
-	private <T> ResponseEntity<T> checkNotModified(Entry entry, WebRequest webRequest, Function<Entry, T> mapper,
+	@Nullable private <T> ResponseEntity<T> checkNotModified(Entry entry, WebRequest webRequest, Function<Entry, T> mapper,
 			MediaType mediaType) {
 		Instant updated = entry.updated().date();
 		if (updated != null) {

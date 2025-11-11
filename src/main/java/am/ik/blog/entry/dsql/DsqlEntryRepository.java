@@ -42,6 +42,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import tools.jackson.core.type.TypeReference;
@@ -334,7 +335,9 @@ public class DsqlEntryRepository implements EntryRepository {
 			.addValue("tenantId", entryKey.tenantId())
 			.addValue("categories", this.jsonMapper.writeValueAsString(frontMatter.categories()))
 			.addValue("tags", this.jsonMapper.writeValueAsString(frontMatter.tags()));
-		return this.jdbcTemplate.queryForObject(sql, params, UUID.class);
+		UUID uuid = this.jdbcTemplate.queryForObject(sql, params, UUID.class);
+		Assert.notNull(uuid, "uuid should not be null");
+		return uuid;
 	}
 
 	private void deleteAndInsertCategories(UUID entryId, Entry entry) {
@@ -378,7 +381,7 @@ public class DsqlEntryRepository implements EntryRepository {
 		this.deleteTokens(entryId);
 		Set<String> tokens = this.tokenizer.tokenize(entry.content());
 		// Insert new tokens
-		if (tokens != null && !tokens.isEmpty()) {
+		if (!tokens.isEmpty()) {
 			// DSQL limits the number of rows per transaction to 3000.
 			// https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility-unsupported-features.html#working-with-postgresql-compatibility-unsupported-limitations
 			MapSqlParameterSource[] batchParams = tokens.stream()
@@ -472,7 +475,7 @@ public class DsqlEntryRepository implements EntryRepository {
 					entryId, TOKENS_MAX_CHUK_SIZE, numOfTokens);
 			int deleteIterations = (numOfTokens / TOKENS_MAX_CHUK_SIZE) + 1;
 			for (int i = 0; i < deleteIterations; i++) {
-				int deleted = this.transactionTemplate.execute(status -> this.jdbcClient.sql(
+				Integer deleted = this.transactionTemplate.execute(status -> this.jdbcClient.sql(
 						"DELETE FROM entry_tokens WHERE entry_id = :entryId AND token IN (SELECT token FROM entry_tokens WHERE entry_id = :entryId LIMIT :limit)")
 					.param("entryId", entryId)
 					.param("limit", TOKENS_MAX_CHUK_SIZE)

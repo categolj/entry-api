@@ -2,8 +2,9 @@ package am.ik.blog.entry;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
-public record SearchCriteria(String query, List<String> categories, String tag) {
+public record SearchCriteria(@Nullable String query, @Nullable List<String> categories, @Nullable String tag) {
 
 	public static SearchCriteria NULL_CRITERIA = new SearchCriteria(null, null, null);
 
@@ -17,21 +18,23 @@ public record SearchCriteria(String query, List<String> categories, String tag) 
 	}
 
 	public Builder toBuilder() {
-		return new Builder().query(this.query).categories(new ArrayList<>(this.categories)).tag(this.tag);
+		return new Builder().query(this.query)
+			.categories(this.categories == null ? new ArrayList<>() : new ArrayList<>(this.categories))
+			.tag(this.tag);
 	}
 
 	public static class Builder {
 
-		private String query;
+		@Nullable private String query;
 
 		private List<String> categories = new ArrayList<>();
 
-		private String tag;
+		@Nullable private String tag;
 
 		private Builder() {
 		}
 
-		public Builder query(String query) {
+		public Builder query(@Nullable String query) {
 			this.query = query;
 			return this;
 		}
@@ -41,13 +44,13 @@ public record SearchCriteria(String query, List<String> categories, String tag) 
 			return this;
 		}
 
-		public Builder tag(String tag) {
+		public Builder tag(@Nullable String tag) {
 			this.tag = tag;
 			return this;
 		}
 
 		public SearchCriteria build() {
-			return new SearchCriteria(query, List.copyOf(categories), tag);
+			return new SearchCriteria(query, categories == null ? new ArrayList<>() : List.copyOf(categories), tag);
 		}
 
 	}
