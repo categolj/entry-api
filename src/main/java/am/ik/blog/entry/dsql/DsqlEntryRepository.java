@@ -246,7 +246,8 @@ public class DsqlEntryRepository implements EntryRepository {
 		boolean hasPrevious = cursor.isPresent();
 		boolean hasNext = contentPlus1.size() == pageSizePlus1;
 		List<Entry> content = hasNext ? contentPlus1.subList(0, pageRequest.pageSize()) : contentPlus1;
-		return new CursorPage<>(content, pageRequest.pageSize(), Entry::toCursor, hasPrevious, hasNext);
+		return new CursorPage<>(content, pageRequest.pageSize(), entry -> Objects.requireNonNull(entry.toCursor()),
+				hasPrevious, hasNext);
 	}
 
 	@Override
