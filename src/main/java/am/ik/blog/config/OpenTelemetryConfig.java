@@ -19,12 +19,14 @@ class OpenTelemetryConfig {
 			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 				if (bean instanceof Sampler) {
 					AttributeKey<String> uri = AttributeKey.stringKey("uri");
+					AttributeKey<String> dbOperation = AttributeKey.stringKey("db.operation");
 					return RuleBasedRoutingSampler.builder(SpanKind.SERVER, (Sampler) bean)
 						.drop(uri, "^/readyz")
 						.drop(uri, "^/livez")
 						.drop(uri, "^/actuator")
 						.drop(uri, "^/cloudfoundryapplication")
 						.drop(uri, "^/_static")
+						.drop(dbOperation, "INFO")
 						.build();
 				}
 				return bean;
