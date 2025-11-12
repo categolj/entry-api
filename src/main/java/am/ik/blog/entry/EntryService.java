@@ -17,7 +17,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 @Service
-@Retryable(includes = { OptimisticLockingFailureException.class }, maxAttempts = 4, delay = 100L, multiplier = 2,
+@Retryable(includes = { OptimisticLockingFailureException.class }, maxRetries = 4, delay = 100L, multiplier = 2,
 		jitter = 10L)
 public class EntryService {
 
