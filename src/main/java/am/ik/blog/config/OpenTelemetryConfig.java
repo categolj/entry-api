@@ -26,7 +26,7 @@ class OpenTelemetryConfig {
 						.drop(uri, "^/actuator")
 						.drop(uri, "^/cloudfoundryapplication")
 						.drop(uri, "^/_static")
-						.drop(dbOperation, "INFO")
+						.drop(dbOperation, "^INFO")
 						.build();
 				}
 				return bean;
