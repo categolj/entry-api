@@ -1,6 +1,8 @@
 package am.ik.blog.github;
 
 import java.util.List;
+import org.jspecify.annotations.NonNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -11,7 +13,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 public interface GitHubClient {
 
 	@GetExchange(url = "/contents/{path}")
-	File getFile(@PathVariable("owner") String owner, @PathVariable("repo") String repo,
+	ResponseEntity<@NonNull File> getFile(@PathVariable("owner") String owner, @PathVariable("repo") String repo,
 			@PathVariable("path") String path);
 
 	@GetExchange(url = "/commits")

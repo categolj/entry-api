@@ -16,7 +16,11 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.service.registry.HttpServiceProxyRegistry;
 
 @Component
@@ -39,7 +43,7 @@ public class GithubEntryFetcher implements EntryFetcher {
 	@Override
 	public Optional<Entry> fetch(@Nullable String tenantId, String owner, String repo, String path) {
 		GitHubClient gitHubClient;
-		if (tenantId == null) {
+		if (EntryKey.isDefaultTenant(tenantId)) {
 			gitHubClient = this.gitHubClient;
 		}
 		else {
@@ -47,12 +51,24 @@ public class GithubEntryFetcher implements EntryFetcher {
 		}
 		Long entryId = Entry.parseId(Paths.get(path).getFileName().toString());
 		EntryKey entryKey = new EntryKey(entryId, tenantId);
-		File file = gitHubClient.getFile(owner, repo, path);
-		logger.info("Retrieved file: {}", file.url());
-		List<Commit> commits = gitHubClient.getCommits(owner, repo, new CommitParameter().path(path).queryParams());
-		Author created = commits.isEmpty() ? Author.builder().name("unknown").build() : toAuthor(commits.getLast());
-		Author updated = commits.isEmpty() ? Author.builder().name("unknown").build() : toAuthor(commits.getFirst());
-		return Optional.of(this.entryParser.fromMarkdown(entryKey, file.decode(), created, updated).build());
+		ResponseEntity<File> response = gitHubClient.getFile(owner, repo, path);
+		if (response.getStatusCode() == HttpStatus.OK) {
+			File file = response.getBody();
+			Assert.notNull(file, "File must not be null");
+			logger.info("Retrieved file: {}", file.url());
+			List<Commit> commits = gitHubClient.getCommits(owner, repo, new CommitParameter().path(path).queryParams());
+			Author created = commits.isEmpty() ? Author.builder().name("unknown").build() : toAuthor(commits.getLast());
+			Author updated = commits.isEmpty() ? Author.builder().name("unknown").build()
+					: toAuthor(commits.getFirst());
+			return Optional.of(this.entryParser.fromMarkdown(entryKey, file.decode(), created, updated).build());
+		}
+		else if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+			return Optional.empty();
+		}
+		else {
+			throw new ResponseStatusException(response.getStatusCode(),
+					"Unexpected response returned from Github File API :" + response.getStatusCode());
+		}
 	}
 
 	private Author toAuthor(Commit commit) {

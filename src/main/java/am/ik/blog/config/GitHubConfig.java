@@ -50,7 +50,8 @@ class GitHubConfig {
 		return groups -> {
 			groups.filterByName("github").forEachClient((_, builder) -> {
 				builder.baseUrl(props.getApiUrl())
-					.defaultHeader(HttpHeaders.AUTHORIZATION, "token %s".formatted(props.getAccessToken()));
+					.defaultHeader(HttpHeaders.AUTHORIZATION, "token %s".formatted(props.getAccessToken()))
+					.defaultStatusHandler(allwaysTrueStatusPredicate, noOpErrorHandler);
 			});
 			Map<String, GitHubProps> tenants = props.getTenants();
 			if (!CollectionUtils.isEmpty(tenants)) {
@@ -58,7 +59,8 @@ class GitHubConfig {
 					groups.filterByName("github.%s".formatted(tenantId)).forEachClient((_, builder) -> {
 						builder.baseUrl(props.getApiUrl())
 							.defaultHeader(HttpHeaders.AUTHORIZATION,
-									"token %s".formatted(tenantProps.getAccessToken()));
+									"token %s".formatted(tenantProps.getAccessToken()))
+							.defaultStatusHandler(allwaysTrueStatusPredicate, noOpErrorHandler);
 					});
 				});
 			}
