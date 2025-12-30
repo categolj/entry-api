@@ -24,11 +24,15 @@ public record EntryKey(Long entryId, String tenantId) {
 
 	@JsonIgnore
 	public boolean isDefaultTenant() {
-		return this.tenantId.equals(DEFAULT_TENANT_ID);
+		return EntryKey.isDefaultTenant(this.tenantId);
 	}
 
 	public static String requireNonNullTenantId(@Nullable String tenantId) {
 		return Objects.requireNonNullElse(tenantId, DEFAULT_TENANT_ID);
+	}
+
+	public static boolean isDefaultTenant(@Nullable String tenantId) {
+		return tenantId == null || DEFAULT_TENANT_ID.equals(tenantId);
 	}
 
 	@Override
