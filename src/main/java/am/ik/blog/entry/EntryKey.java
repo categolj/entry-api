@@ -1,6 +1,7 @@
 package am.ik.blog.entry;
 
 import am.ik.csv.Csv;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
@@ -14,17 +15,25 @@ public record EntryKey(Long entryId, String tenantId) {
 
 	public EntryKey(Long entryId, @Nullable String tenantId) {
 		this.entryId = entryId;
-		this.tenantId = Objects.requireNonNullElse(tenantId, DEFAULT_TENANT_ID);
+		this.tenantId = EntryKey.requireNonNullTenantId(tenantId);
 	}
 
 	public EntryKey(Long entryId) {
 		this(entryId, DEFAULT_TENANT_ID);
 	}
 
+	@JsonIgnore
+	public boolean isDefaultTenant() {
+		return this.tenantId.equals(DEFAULT_TENANT_ID);
+	}
+
+	public static String requireNonNullTenantId(@Nullable String tenantId) {
+		return Objects.requireNonNullElse(tenantId, DEFAULT_TENANT_ID);
+	}
+
 	@Override
 	public String toString() {
-		return (tenantId == null || DEFAULT_TENANT_ID.equals(tenantId)) ? Entry.formatId(entryId)
-				: csv.joinLine(Entry.formatId(entryId), tenantId);
+		return isDefaultTenant() ? Entry.formatId(entryId) : csv.joinLine(Entry.formatId(entryId), tenantId);
 	}
 
 	public static EntryKey valueOf(String value) {

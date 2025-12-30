@@ -8,17 +8,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
-import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.resilience.annotation.Retryable;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 @Service
-@Retryable(includes = { OptimisticLockingFailureException.class }, maxRetries = 4, delay = 100L, multiplier = 2,
-		jitter = 10L)
 public class EntryService {
 
 	public static final int DEFAULT_PAGE_SIZE = 30;
@@ -33,7 +26,6 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.GET)
-	@Cacheable(cacheNames = CacheNames.ENTRY, key = "#entryKey")
 	public Optional<Entry> findById(@Nullable @P("tenantId") String tenantId, EntryKey entryKey) {
 		return entryRepository.findById(entryKey);
 	}
@@ -50,7 +42,6 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.LIST)
-	@Cacheable(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'")
 	public CursorPage<Entry, Instant> findLatest(@Nullable @P("tenantId") String tenantId) {
 		return entryRepository.findOrderByUpdated(tenantId, SearchCriteria.NULL_CRITERIA, DEFAULT_CURSOR_REQUEST);
 	}
@@ -66,8 +57,6 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, key = "#entry.entryKey"),
-			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public Entry save(@Nullable @P("tenantId") String tenantId, Entry entry) {
 		return entryRepository.save(entry);
 	}
@@ -78,29 +67,21 @@ public class EntryService {
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, allEntries = true),
-			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void saveAll(@Nullable @P("tenantId") String tenantId, Entry... entries) {
 		entryRepository.saveAll(entries);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, allEntries = true),
-			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void saveAll(@Nullable @P("tenantId") String tenantId, List<Entry> entries) {
 		entryRepository.saveAll(entries);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.DELETE)
-	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, key = "#entryKey"),
-			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void deleteById(@Nullable @P("tenantId") String tenantId, EntryKey entryKey) {
 		entryRepository.deleteById(entryKey);
 	}
 
 	@Authorized(resource = "entry", requiredPrivileges = Privilege.EDIT)
-	@Caching(evict = { @CacheEvict(cacheNames = CacheNames.ENTRY, key = "#entryKey"),
-			@CacheEvict(cacheNames = CacheNames.LATEST_ENTRIES, key = "#tenantId ?: '_'") })
 	public void updateSummary(@Nullable @P("tenantId") String tenantId, EntryKey entryKey, String summary) {
 		entryRepository.updateSummary(entryKey, summary);
 	}

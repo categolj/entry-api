@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -133,8 +132,8 @@ class WebhookControllerTest {
 			.toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
 			});
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).isEqualTo(List.of(Map.of("added",
-				Map.of("entryId", 100, "tenantId", Objects.requireNonNullElse(tenantId, EntryKey.DEFAULT_TENANT_ID)))));
+		assertThat(response.getBody()).isEqualTo(List
+			.of(Map.of("added", Map.of("entryId", 100, "tenantId", EntryKey.requireNonNullTenantId(tenantId)))));
 		assertThat(this.entryRepository.findById(new EntryKey(100L, tenantId))).contains(entry.toBuilder()
 			.updated(Author.builder().name("Test User2").date(Instant.parse("2025-06-27T15:55:20Z")).build())
 			.created(Author.builder().name("Test User1").date(Instant.parse("2025-06-27T15:45:58Z")).build())
@@ -195,8 +194,8 @@ class WebhookControllerTest {
 			.toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
 			});
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).isEqualTo(List.of(Map.of("modified",
-				Map.of("entryId", 100, "tenantId", Objects.requireNonNullElse(tenantId, EntryKey.DEFAULT_TENANT_ID)))));
+		assertThat(response.getBody()).isEqualTo(List
+			.of(Map.of("modified", Map.of("entryId", 100, "tenantId", EntryKey.requireNonNullTenantId(tenantId)))));
 		assertThat(this.entryRepository.findById(new EntryKey(100L, tenantId))).contains(entry.toBuilder()
 			.updated(Author.builder().name("Test User2").date(Instant.parse("2025-06-27T15:55:20Z")).build())
 			.created(Author.builder().name("Test User1").date(Instant.parse("2025-06-27T15:45:58Z")).build())
@@ -246,8 +245,8 @@ class WebhookControllerTest {
 			.toEntity(new ParameterizedTypeReference<List<Map<String, Object>>>() {
 			});
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(response.getBody()).isEqualTo(List.of(Map.of("removed",
-				Map.of("entryId", 1, "tenantId", Objects.requireNonNullElse(tenantId, EntryKey.DEFAULT_TENANT_ID)))));
+		assertThat(response.getBody()).isEqualTo(List
+			.of(Map.of("removed", Map.of("entryId", 1, "tenantId", EntryKey.requireNonNullTenantId(tenantId)))));
 		assertThat(this.entryRepository.findById(new EntryKey(1L, tenantId))).isEmpty();
 	}
 

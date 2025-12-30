@@ -11,7 +11,6 @@ import am.ik.webhook.WebhookVerifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -125,7 +124,7 @@ public class WebhookController {
 				}
 			}
 			if (latestEntriesCache != null) {
-				String key = Objects.requireNonNullElse(tenantId, EntryKey.DEFAULT_TENANT_ID);
+				String key = EntryKey.requireNonNullTenantId(tenantId);
 				logger.info("Evicting latestEntries cache for tenantId: {}", key);
 				latestEntriesCache.evict(key);
 			}
