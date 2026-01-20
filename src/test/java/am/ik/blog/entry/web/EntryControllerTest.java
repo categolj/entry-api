@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 		properties = { "blog.tenant.users[0]=blog-ui|{noop}empty|_=GET,LIST",
 				"blog.tenant.users[1]=readonly|{noop}secret|t1=GET,LIST",
 				"blog.tenant.users[2]=editor|{noop}password|_=EDIT,DELETE|t1=EDIT,DELETE,GET",
-				"logging.level.am.ik.blog.entry.dsql.DsqlEntryRepository=warn",
+				"blog.github.direct-update=false", "logging.level.am.ik.blog.entry.dsql.DsqlEntryRepository=warn",
 				"logging.level.org.springframework.cache=trace" })
 @Sql(scripts = { "classpath:sql/clean-table.sql" })
 @ActiveProfiles({ "redis" })
