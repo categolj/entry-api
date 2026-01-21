@@ -1,8 +1,8 @@
-image: ghcr.io/categolj/entry-api@sha256:26146a3090d572a2c26fe365a3d9c73bbedc21cc0fff02995f63b6f10e4ea09d
-git_revision: 8ff1bd32a8985cec98361a8657a77977a78ce565
+image: ghcr.io/categolj/entry-api@sha256:fcad1b596bb4a6ade1fb9654c7c65963919c73cc5806e296199ba75b0b9b21b9
+git_revision: 27dffb8794354a15c4385176e0076c6e865c3c8c
 deployment:
   image:
     repository: ghcr.io/categolj/entry-api
-    digest: sha256:26146a3090d572a2c26fe365a3d9c73bbedc21cc0fff02995f63b6f10e4ea09d
+    digest: sha256:fcad1b596bb4a6ade1fb9654c7c65963919c73cc5806e296199ba75b0b9b21b9
   podLabels:
-    github.com/revision: 8ff1bd32a8985cec98361a8657a77977a78ce565
+    github.com/revision: 27dffb8794354a15c4385176e0076c6e865c3c8c
